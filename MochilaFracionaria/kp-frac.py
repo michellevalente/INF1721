@@ -32,7 +32,7 @@ def throw(step):
 """
 	Encapsulates the answer 
 """
-	if step == KEY:
+	if step >= KEY:
 		return True
 	else:
 		return False
