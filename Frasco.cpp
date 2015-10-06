@@ -34,7 +34,7 @@ int Frasco(int n, int k)
     }
         
     
-    cont = pow(2,pot);
+    cont = (1 << pot);
     
     for(j=k-1; j>=0; j--)
     {
