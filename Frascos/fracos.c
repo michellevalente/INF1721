@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define INTBIT 32
 
 int ** parsed_data = NULL;
-#define INTBIT 32
+int bittage, num_elem;
 char* FILE_ERROR = "Couldn't read or open the file";
 
 typedef enum{
@@ -31,9 +32,10 @@ int compare(int * a, int *b, int byte){
 ret parser_whole_file(char* fileName){
 
 	char buffer[5];
-	int bittage, num_elem;
 	int i,j,k; 
 	FILE * data_file = fopen(fileName,"r");
+
+	printf("Parsing the file:%s\n",fileName );
 
 	if(data_file == NULL){
 		puts(FILE_ERROR);
@@ -72,8 +74,6 @@ ret parser_whole_file(char* fileName){
 
 			}
 			
-			printf("%d_%X ",parsed_data[i][j],parsed_data[i][j] );
-
 		}
 		//Capture \n
 		if(fscanf(data_file,"%c",buffer) != 1){
@@ -84,8 +84,25 @@ ret parser_whole_file(char* fileName){
 			puts("Unexpected end");
 			return WARNING;
 		}
-		printf("_%c\n", buffer[0] );
 	}
+	puts("File succefully parsed");
+	return SUCCESS;
+}
+
+ret drop(int n_bits, int k, int * data ){
+
+	int step,i, answer[8];
+
+	for(i=0;i<8;i++)
+		answer[i]=0;
+
+	while(k--){
+		step = n_bits/k;
+		//go steping += step; (until steping == n_bits)
+
+		//when it does break, shortens the scope and wides up the step  
+	}
+
 
 	return SUCCESS;
 }
