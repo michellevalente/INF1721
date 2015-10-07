@@ -1,29 +1,59 @@
 #include <vector>       
 #include <iostream>
+#include <fstream>
 
 class Object{
 public:
-	int peso, valor;
+	int peso, valor, elem;
 	double densidade;
 
-	Object(int p, int v)
+	Object(int p, int v, int n)
 	{
 		peso = p;
 		valor = v;
-		densidade = peso *1.0  / valor;
+		elem = n;
+		densidade = valor *1.0  / peso;
+	}
+
+	Object(){
+		peso = valor = densidade = 0;
 	}
 	
 } ;
 
 bool object_compare(Object obj1, Object obj2) { return obj1.densidade > obj2.densidade; }
 
-void kpfrac(Object obj[], int n, int W, double frac[])
+Object * objetos = NULL;
+int W;
+int num_elem;
+
+void parser(std::string fileName)
+{
+	int valor, peso, num;
+	std::ifstream infile(fileName);
+
+	infile >> num_elem;
+
+	objetos = new Object[num_elem];
+
+	for(int i = 0 ; i < num_elem; i++)
+	{
+		infile >> num >> valor >> peso;
+		Object obj(peso, valor, num);
+		objetos[i] = obj;
+	}
+	infile >> W;
+
+}
+
+void kpfrac(Object obj[])
 {
 	int current_w = 0, i;
 	int peso = 0;
-	std::sort(obj, obj+n, object_compare);
+	double frac[num_elem];
+	std::sort(obj, obj+num_elem, object_compare);
 
-	for(i = 0; i < n ; i++)
+	for(i = 0; i < num_elem ; i++)
 		frac[i] = 0;
 	
 	i = 0;
@@ -31,11 +61,14 @@ void kpfrac(Object obj[], int n, int W, double frac[])
 	{	
 		if(peso + obj[i].peso <= W)
 		{
+			std::cout << "Elemento colocado na mochila: " << obj[i].elem << std::endl;
 			frac[i] = 1;
 			peso += obj[i].peso;
 		}
 		else
 		{
+			std::cout << "Elemento colocado parcialmente na mochila: " <<  obj[i].elem << std::endl;
+
 			frac[i] = (W - peso) *1.0 / obj[i].peso;
 			peso = W;
 		}
@@ -45,14 +78,9 @@ void kpfrac(Object obj[], int n, int W, double frac[])
 
 int main()
 {
-	Object obj1(3,1);
-	Object obj2(1,2);
-	Object obj3(4,2);
-	Object obj[3] = {obj1,obj2,obj3};
-	double frac[3];
-	
-	kpfrac(obj, 3, 5, frac);
+	parser("dummy.in");
 
-	for(int i = 0 ; i < 3; i++)
-		std::cout << frac[i] << std::endl;
+	kpfrac(objetos);
+
+	
 }
