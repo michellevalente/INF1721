@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int ** parsed_data = NULL;
-
+#define INTBIT 32
 char* FILE_ERROR = "Couldn't read or open the file";
 
 typedef enum{
@@ -13,6 +13,20 @@ typedef enum{
 
 ret std;
 
+/******************************
+ retorna >0 se a maior que b
+ 		  0 se a igual a b
+ 		 <0 se a menor que b
+*******************************/
+int compare(int * a, int *b, int byte){
+	int i,sum;
+	for(i=0;i<byte;i++){
+		sum = a[i] - b[i];
+		if(sum != 0)
+			return sum;
+	}
+	return sum;
+}
 
 ret parser_whole_file(char* fileName){
 
@@ -39,25 +53,22 @@ ret parser_whole_file(char* fileName){
 
 	for(i=0;i<num_elem;i++){
 		parsed_data[i] = (int*) malloc( bittage );
-		for(j=0; j<bittage/8; j++)
+		for(j=0; j<bittage/INTBIT; j++)
 			parsed_data[i][j]=0;
 	}
 
 	for(i=0;i<num_elem;i++){
 
-		for(j=0;j<bittage/8;j++){
+		for(j=0;j<bittage/INTBIT;j++){
 
-			for(k=0;k<8;k++){
+			for(k=0;k<INTBIT;k++){
 
 				if(fscanf(data_file," %c",&buffer[0]) != 1){
 					puts(FILE_ERROR);
 					return ERROR;
 				}
-				if(i==0){
-					printf("%c=%d ",buffer[0],((int)(buffer[0] - '0')) );
-				}
 				parsed_data[i][j] += ((int)(buffer[0] - '0'));
-				parsed_data[i][j] = parsed_data[i][j] << (k < 7 ? 1 : 0);
+				parsed_data[i][j] = parsed_data[i][j] << (k < INTBIT-1 ? 1 : 0);
 
 			}
 			
