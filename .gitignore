@@ -1,4 +1,7 @@
+*.o
+*.exe
 
 *.dat
 
 *.out
+*.DS_Store
