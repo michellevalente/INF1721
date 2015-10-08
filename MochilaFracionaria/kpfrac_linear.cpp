@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "Object.h"
+#include "CPUTimer.h"
 
 Object * objects;
 std::vector<Object> inserted;
@@ -234,11 +235,29 @@ int main (int argc, char * argv[])
 
     parser(argv[1]);
 
-    //Object objects_bck = new Object[num_elem];
-    //memcpy(objects_bck, objects, num_elem * sizeof(Object));
+    Object * temp = new Object[num_elem];
 
-    // TODO: add timing constraints, lines above will make sense
-    kpfrac_linear(objects, num_elem, W);
+    for(int i = 0; i < num_elem; i++)
+        temp[i] = objects[i];
+
+    CPUTimer timer;
+
+    int it = 0;
+    while(timer.getCPUTotalSecs() < 5.0)
+    {
+        inserted.clear();
+        timer.start();
+        kpfrac_linear(objects, num_elem, W); 
+        timer.stop();      
+        it++;
+        for(int j = 0; j < num_elem; j++)
+            objects[j] = temp[j];
+    }
+
+    double media = timer.getCPUTotalSecs() / it;
+
+    std::cout << "Media de tempo: " << media << std::endl; 
+
 
     // Loop over the array of objects and display which were inserted and with
     //   what frequency.
