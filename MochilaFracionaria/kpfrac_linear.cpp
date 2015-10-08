@@ -14,26 +14,26 @@ unsigned int W, num_elem;
  *   at path `fileName`.
  *
  * @param fileName
- * 		Path to the input file.
+ *      Path to the input file.
  */
 void parser (std::string fileName) {
-	int valor, weight, num;
-	std::ifstream infile(fileName);
+    int valor, weight, num;
+    std::ifstream infile(fileName);
 
-	infile >> num_elem;
+    infile >> num_elem;
 
-	objects = new Object[num_elem];
-	inserted.reserve(num_elem);
+    objects = new Object[num_elem];
+    inserted.reserve(num_elem);
 
-	for(int i = 0 ; i < num_elem; i++) {
-		infile >> num >> valor >> weight;
+    for(int i = 0 ; i < num_elem; i++) {
+        infile >> num >> valor >> weight;
 
-		Object obj(weight, valor, num);
+        Object obj(weight, valor, num);
 
-		objects[i] = obj;
-	}
+        objects[i] = obj;
+    }
 
-	infile >> W;
+    infile >> W;
 }
 
 /**
@@ -46,13 +46,13 @@ void parser (std::string fileName) {
  * Extracted and modified from: https://gist.github.com/andlima/1774060
  *
  * @param v
- *		Subset of the list of Objects for the current input file.
+ *      Subset of the list of Objects for the current input file.
  * @param n
  *      Number of elements inside of `v`.
  * @param k
- *		Index of the element the user wants to find.
+ *      Index of the element the user wants to find.
  * @return
- *		The value of the `k`-th element of `v`.
+ *      The value of the `k`-th element of `v`.
  */
 Object find_kth (Object * v, int n, int k) {
     if (n == 1 && k == 0) return v[0];
@@ -62,8 +62,8 @@ Object find_kth (Object * v, int n, int k) {
     Object * medians = new Object[m];
 
     for (int i = 0; i < m; i++) {
-    	// Assert there are 5 elements to be sorted in the `i`-th chunk.
-    	// Otherwise, just get the first element of the `i`-th chunk. [good enough]
+        // Assert there are 5 elements to be sorted in the `i`-th chunk.
+        // Otherwise, just get the first element of the `i`-th chunk. [good enough]
         if (5 * i + 4 < n) {
             Object * w = v + 5 * i;
 
@@ -141,84 +141,84 @@ Object find_kth (Object * v, int n, int k) {
  *
  * In the execution of this algorithm, we always traverse perform O(n) operation,
  *   then throwing away n/2 elements in the recursive calls. Therefore:
- * 		T(n) <= T(n/2) + O(n)
+ *      T(n) <= T(n/2) + O(n)
  * From the Master Theorem, it follows that the worst-case time complexity is O(n).
  *
  * @param objects
- *		Set of objects containing the subset to be tentatively inserted into
+ *      Set of objects containing the subset to be tentatively inserted into
  *        the knapsack.
  * @param length
- *		Number of elements in `objects`.
+ *      Number of elements in `objects`.
  * @param weight
- *		Free space within the knapsack.
+ *      Free space within the knapsack.
  */
 void kpfrac_linear (Object * objects, int length, int weight) {
-	// Base case: We have an empty array or a full knapsack, return;
-	if (length <= 0 || weight == 0) return;
+    // Base case: We have an empty array or a full knapsack, return;
+    if (length <= 0 || weight == 0) return;
 
-	Object * R_1, * R_2, * R_3;
-	int idx_R_1, idx_R_2, idx_R_3;
+    Object * R_1, * R_2, * R_3;
+    int idx_R_1, idx_R_2, idx_R_3;
 
-	R_1 = new Object[length/2 + 1];
-	R_2 = new Object[length/2 + 1];
-	R_3 = new Object[length/2 + 1];
+    R_1 = new Object[length/2 + 1];
+    R_2 = new Object[length/2 + 1];
+    R_3 = new Object[length/2 + 1];
 
-	idx_R_1 = idx_R_2 = idx_R_3 = 0;
+    idx_R_1 = idx_R_2 = idx_R_3 = 0;
 
-	// Step 1. Taking advantage of `find_kth` side-effects.
-	Object median = find_kth(objects, length, length/2); // O(length) 
+    // Step 1. Taking advantage of `find_kth` side-effects.
+    Object median = find_kth(objects, length, length/2); // O(length) 
 
     // Step 2
-	int R_3_weight = 0;
-	for (int i = 0; i < length; i++) { // O(length)
-		// Step 2.1
-		if (i < length/2) {
-			R_1[idx_R_1++] = objects[i]; 
-		}
-		// Step 2.2 
-		else if (median == objects[i]) {
-			R_2[idx_R_2++] = objects[i];
-		}
-		// Step 2.3
-		else {
-			R_3[idx_R_3++] = objects[i];
-			R_3_weight += objects[i].weight;
-		}		
-	}
+    int R_3_weight = 0;
+    for (int i = 0; i < length; i++) { // O(length)
+        // Step 2.1
+        if (i < length/2) {
+            R_1[idx_R_1++] = objects[i]; 
+        }
+        // Step 2.2 
+        else if (median == objects[i]) {
+            R_2[idx_R_2++] = objects[i];
+        }
+        // Step 2.3
+        else {
+            R_3[idx_R_3++] = objects[i];
+            R_3_weight += objects[i].weight;
+        }
+    }
 
-	// Step 3
-	if (R_3_weight > weight) {
-		kpfrac_linear(R_3, idx_R_3, weight); // T(length/2)
-	} else {
-		// Step 4
-		for (int i = 0; i < idx_R_3; i++) { // O(idx_R_3) < O(length)
-			R_3[i].frequency = 1.0;
-			weight -= R_3[i].weight;
-			inserted.push_back(R_3[i]);
-		}
+    // Step 3
+    if (R_3_weight > weight) {
+        kpfrac_linear(R_3, idx_R_3, weight); // T(length/2)
+    } else {
+        // Step 4
+        for (int i = 0; i < idx_R_3; i++) { // O(idx_R_3) < O(length)
+            R_3[i].frequency = 1.0;
+            weight -= R_3[i].weight;
+            inserted.push_back(R_3[i]);
+        }
 
-		// Step 5. 
-		// Either takes all from `R_2` completely with leftover space or exhausts
-		// the knapsack.
-		for (int i = 0; i < idx_R_2 && weight > 0; i++) {
-			if (R_2[i].weight < weight) {
-				R_2[i].frequency = 1.0;
-				weight -= R_2[i].weight;
-			} else {
-				R_2[i].frequency = weight * 1.0 / R_2[i].weight;
-				weight = 0;
-			}
+        // Step 5. 
+        // Either takes all from `R_2` completely with leftover space or exhausts
+        // the knapsack.
+        for (int i = 0; i < idx_R_2 && weight > 0; i++) {
+            if (R_2[i].weight < weight) {
+                R_2[i].frequency = 1.0;
+                weight -= R_2[i].weight;
+            } else {
+                R_2[i].frequency = weight * 1.0 / R_2[i].weight;
+                weight = 0;
+            }
 
-			inserted.push_back(R_2[i]);
-		}
+            inserted.push_back(R_2[i]);
+        }
 
-		// Step 6.
-		kpfrac_linear(R_1, idx_R_1, weight); // T(length/2)
-	}
+        // Step 6.
+        kpfrac_linear(R_1, idx_R_1, weight); // T(length/2)
+    }
 
-	delete [] R_1;
-	delete [] R_2;
-	delete [] R_3;
+    delete [] R_1;
+    delete [] R_2;
+    delete [] R_3;
 }
 
 /**
@@ -227,40 +227,40 @@ void kpfrac_linear (Object * objects, int length, int weight) {
  */
 int main (int argc, char * argv[])
 {
-	if (argc <= 1) {
-		std::cout << "Please indicate the name of the input file." << std::endl;
-		return -1;
-	}
+    if (argc <= 1) {
+        std::cout << "Please indicate the name of the input file." << std::endl;
+        return -1;
+    }
 
-	parser(argv[1]);
+    parser(argv[1]);
 
-	//Object objects_bck = new Object[num_elem];
-	//memcpy(objects_bck, objects, num_elem * sizeof(Object));
+    //Object objects_bck = new Object[num_elem];
+    //memcpy(objects_bck, objects, num_elem * sizeof(Object));
 
-	// TODO: add timing constraints, lines above will make sense
-	kpfrac_linear(objects, num_elem, W);
+    // TODO: add timing constraints, lines above will make sense
+    kpfrac_linear(objects, num_elem, W);
 
-	// Loop over the array of objects and display which were inserted and with
-	//   what frequency.
-	int totalValue = 0;
-	double totalWeight = 0;
+    // Loop over the array of objects and display which were inserted and with
+    //   what frequency.
+    int totalValue = 0;
+    double totalWeight = 0;
 
-	std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-	for (int i = 0, len = inserted.size(); i < len; i++) {
-		Object obj = inserted[i];
+    std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
+    for (int i = 0, len = inserted.size(); i < len; i++) {
+        Object obj = inserted[i];
 
-		std::cout << obj.elem   << " " << obj.value   << " " 
-		          << obj.weight << " " << obj.density << " "
-		          << obj.frequency << std::endl;
+        std::cout << obj.elem   << " " << obj.value   << " " 
+                  << obj.weight << " " << obj.density << " "
+                  << obj.frequency << std::endl;
 
-		totalValue  += obj.frequency * obj.value;
-		totalWeight += obj.frequency * obj.weight;
-	}
-	std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-	std::cout << "Value : " << totalValue << std::endl;
+        totalValue  += obj.frequency * obj.value;
+        totalWeight += obj.frequency * obj.weight;
+    }
+    std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
+    std::cout << "Value : " << totalValue << std::endl;
 
-	delete [] objects;
-	inserted.clear();
+    delete [] objects;
+    inserted.clear();
 
-	return 0;
+    return 0;
 }
