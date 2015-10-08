@@ -13,6 +13,14 @@ Object::Object(int p, int v, int n) {
     frequency = 0.0;
 }
 
+Object::Object(const Object &obj ){
+    weight = obj.weight;
+    value = obj.value;
+    elem = obj.elem;
+    density =  obj.density;
+    frequency = obj.frequency;
+}
+
 bool operator< (const Object& lhs, const Object& rhs){
 	return lhs.density < rhs.density; 
 }
@@ -36,6 +44,17 @@ bool operator==(const Object& lhs, const Object& rhs){
 bool operator!=(const Object& lhs, const Object& rhs){
 	return !(lhs == rhs);
 }
+
+const Object& Object::operator=(const Object& obj){
+    weight = obj.weight;
+    value = obj.value;
+    elem = obj.elem;
+    density =  obj.density;
+    frequency = obj.frequency;
+
+    return *this;
+}
+
 
 bool object_compare (Object obj1, Object obj2) { 
     return obj1.density > obj2.density; 

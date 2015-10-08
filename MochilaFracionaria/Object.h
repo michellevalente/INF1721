@@ -10,6 +10,10 @@ public:
     Object ();
 
     Object (int p, int v, int n);
+
+    Object( const Object &obj);
+
+    const Object &operator=(const Object& obj);
 };
 
 bool operator< (const Object& lhs, const Object& rhs);
@@ -23,6 +27,7 @@ bool operator>=(const Object& lhs, const Object& rhs);
 bool operator==(const Object& lhs, const Object& rhs);
 
 bool operator!=(const Object& lhs, const Object& rhs);
+
 
 /**
  * Object comparison.
