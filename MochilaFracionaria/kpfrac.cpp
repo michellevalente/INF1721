@@ -10,20 +10,20 @@ int num_elem;
 
 void parser(std::string fileName)
 {
-	int valor, weight, num;
-	std::ifstream infile(fileName);
+    int valor, weight, num;
+    std::ifstream infile(fileName);
 
-	infile >> num_elem;
+    infile >> num_elem;
 
-	objects = new Object[num_elem];
+    objects = new Object[num_elem];
 
-	for(int i = 0 ; i < num_elem; i++)
-	{
-		infile >> num >> valor >> weight;
-		Object obj(weight, valor, num);
-		objects[i] = obj;
-	}
-	infile >> W;
+    for(int i = 0 ; i < num_elem; i++)
+    {
+        infile >> num >> valor >> weight;
+        Object obj(weight, valor, num);
+        objects[i] = obj;
+    }
+    infile >> W;
 }
 
 void mergeSort(Object * objects, int start, int end) {
@@ -70,63 +70,63 @@ void mergeSort(Object * objects, int start, int end) {
 
 void kpfrac(Object * obj)
 {
-	int i, weight = 0;
+    int i, weight = 0;
     double frac[num_elem];
 
-	mergeSort(obj, 0, num_elem);
+    mergeSort(obj, 0, num_elem);
 
-	for(i = 0; i < num_elem; i++) {
-		frac[i] = 0;
-	}
-	
-	i = 0;
-	while (weight < W)
-	{	
-		if (weight + obj[i].weight <= W)
-		{
-			objects[i].frequency = 1.0;
-			weight += objects[i].weight;
-		} else {
-			objects[i].frequency = (W - weight) * 1.0 / obj[i].weight;
-			weight = W;
-		}
-		i++;
-	}
+    for(i = 0; i < num_elem; i++) {
+        frac[i] = 0;
+    }
+    
+    i = 0;
+    while (weight < W)
+    {   
+        if (weight + obj[i].weight <= W)
+        {
+            objects[i].frequency = 1.0;
+            weight += objects[i].weight;
+        } else {
+            objects[i].frequency = (W - weight) * 1.0 / obj[i].weight;
+            weight = W;
+        }
+        i++;
+    }
 }
 
 int main(int argc, char * argv[])
 {
-	if (argc <= 1) {
-		std::cout << "Please indicate the name of the input file." << std::endl;
-		return -1;
-	}
+    if (argc <= 1) {
+        std::cout << "Please indicate the name of the input file." << std::endl;
+        return -1;
+    }
 
-	parser(argv[1]);
+    parser(argv[1]);
 
-	kpfrac(objects);
+    kpfrac(objects);
 
-	// Loop over the array of objects and display which were inserted and with
-	//   what frequency.
-	int totalValue = 0;
-	double totalWeight = 0;
+    // Loop over the array of objects and display which were inserted and with
+    //   what frequency.
+    int totalValue = 0;
+    double totalWeight = 0;
 
-	std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-	for (int i = 0; i < num_elem; i++) {
-		std::cout << objects[i].elem   << " " << objects[i].value   << " " 
-		          << objects[i].weight << " " << objects[i].density << " "
-		          << objects[i].frequency << std::endl;
+    std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
+    for (int i = 0; i < num_elem; i++) {
+        std::cout << objects[i].elem   << " " << objects[i].value   << " " 
+                  << objects[i].weight << " " << objects[i].density << " "
+                  << objects[i].frequency << std::endl;
 
-		if (objects[i].frequency == 0) {
-			break;
-		}
+        if (objects[i].frequency == 0) {
+            break;
+        }
 
-		totalValue  += objects[i].frequency * objects[i].value;
-		totalWeight += objects[i].frequency * objects[i].weight;
-	}
-	std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-	std::cout << "Value : " << totalValue << std::endl;
+        totalValue  += objects[i].frequency * objects[i].value;
+        totalWeight += objects[i].frequency * objects[i].weight;
+    }
+    std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
+    std::cout << "Value : " << totalValue << std::endl;
 
-	delete [] objects;
+    delete [] objects;
 
-	return 0;
+    return 0;
 }
