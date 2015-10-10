@@ -223,22 +223,39 @@ ret drop(int n_bits, int k, int * data ){
 	return ERROR;
 
 }
-
+ret drop_all(int k){
+	int i = 0, count =0;
+	double file_avg=0;
+	CPUTimer timer;
+	for (i=0; i<num_elem; i++){
+		count = 0;
+		timer.reset();
+		while(timer.getCPUTotalSecs() < 5.0){
+				timer.start();
+				drop(bittage,k,parsed_data[i]);
+				timer.stop();
+				count++;
+			}
+		file_avg += (timer.getCPUTotalSecs()/count)/num_elem;
+	}
+	ret SUCCESS;
+}
 
 int main(int argc, char *argv[]){
 	CPUTimer timer;
-	double averarge = 0;
+	double average = 0;
 	int count = 0;
 	if (argc == 3 && strcmp("--file",argv[1]) == 0){
 		parser_whole_file(argv[2]);
-		while(timer.getCPUTotalSecs() < 10.0){
-			timer.start();
-			drop(bittage,4,parsed_data[30]);
-			timer.stop();
-			count++;
-		}
-		averarge = timer.getCPUTotalSecs()/count;
-		printf("Averarge time for %s: %gs\n",argv[2],averarge );
+
+		average = drop_all(8);
+		printf("Averarge time for %s: %gs\n",argv[2],average );
+		printf("Size in bits:%d amount: %d k used:8\n",bittage,num_elem );
+
+		average = drop_all(4);
+		printf("Averarge time for %s: %gs\n",argv[2],average );
+		printf("Size in bits:%d amount: %d k used:4\n",bittage,num_elem );
+
 	}
 	else{
 		puts("Wrong parameters! \nUsage: --file fileName");
