@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "CPUTimer.h"
+#include <string.h>
 #define INTBIT 32
 
 int ** parsed_data = NULL;
 int bittage, num_elem;
-char* FILE_ERROR = "Couldn't read or open the file";
+char FILE_ERROR[] = "Couldn't read or open the file";
 
 typedef enum{
 	SUCCESS,
@@ -12,7 +14,7 @@ typedef enum{
 	WARNING
 } ret;
 
-ret std;
+//ret stand;
 
 /******************************
  retorna >0 se a maior que b
@@ -34,9 +36,9 @@ ret parser_whole_file(char* fileName){
 	char buffer[5];
 	int i,j,k; 
 	FILE * data_file = fopen(fileName,"r");
-
+	#if defined VERBOSE
 	printf("Parsing the file:%s\n",fileName );
-
+	#endif
 	if(data_file == NULL){
 		puts(FILE_ERROR);
 		return ERROR;
@@ -85,7 +87,9 @@ ret parser_whole_file(char* fileName){
 			return WARNING;
 		}
 	}
+	#if defined VERBOSE
 	puts("File succefully parsed");
+	#endif
 	return SUCCESS;
 }
 
@@ -93,7 +97,9 @@ void move_to(int *num, int size, int bits){
 	int byte, rest,i;
 	byte = bits/INTBIT;
 	rest = bits%INTBIT;
+	#if defined VERBOSE
 	printf("%d %d\n",byte,rest );
+	#endif
 	for(i=0;i<size;i++){
 		num[i]=0;
 	}
@@ -181,25 +187,28 @@ ret drop(int n_bits, int k, int * data ){
 	}
 
 	// answer from base until roof ++
-	printf("===base %d roof %d\n",base,roof );
+	//printf("===base %d roof %d\n",base,roof );
 	move_to(answer,size,base-1);
-	puts("answer:");
-	print(answer,size);
+	//puts("answer:");
+	//print(answer,size);
 
 	move_to(temp,size,roof-1);
-	puts("\ntemp:");
-	print(temp,size);
-	printf("\n\n\n\n\n\n");
+	//puts("\ntemp:");
+	//print(temp,size);
+	//printf("\n\n\n\n\n\n");
 
 	while(compare(answer,temp,size)<=0){
 
 		sumBig((unsigned int*)answer,size);
 
 		if(compare(answer,data,size)==0){
+			#if defined VERBOSE
+
 			puts("the result is:");
 			print(answer,size);
 			printf("\n");
 
+			#endif
 			return SUCCESS;
 		}
 		//printf("algo\n");
@@ -216,10 +225,23 @@ ret drop(int n_bits, int k, int * data ){
 }
 
 
-int main(){
-
-	parser_whole_file("bignum_32_01.dat");
-	drop(bittage,4,parsed_data[30]);
-
+int main(int argc, char *argv[]){
+	CPUTimer timer;
+	double averarge = 0;
+	int count = 0;
+	if (argc == 3 && strcmp("--file",argv[1]) == 0){
+		parser_whole_file(argv[2]);
+		while(timer.getCPUTotalSecs() < 10.0){
+			timer.start();
+			drop(bittage,4,parsed_data[30]);
+			timer.stop();
+			count++;
+		}
+		averarge = timer.getCPUTotalSecs()/count;
+		printf("Averarge time for %s: %gs\n",argv[2],averarge );
+	}
+	else{
+		puts("Wrong parameters! \nUsage: --file fileName");
+	}
 	return 0;
 }
