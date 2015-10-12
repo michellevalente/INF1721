@@ -226,60 +226,66 @@ void kpfrac_linear (Object * objects, int length, int weight) {
  * Reads in the input file, performs the KP-frac linear time strategy on the 
  *   input and displays the optimal solution.
  */
-int main (int argc, char * argv[])
-{
+int main (int argc, char * argv[]) {
     if (argc <= 1) {
         std::cout << "Please indicate the name of the input file." << std::endl;
         return -1;
     }
 
-    parser(argv[1]);
-
-    Object * temp = new Object[num_elem];
-
-    for(int i = 0; i < num_elem; i++)
-        temp[i] = objects[i];
-
     CPUTimer timer;
 
-    int it = 0;
-    while(timer.getCPUTotalSecs() < 5.0)
-    {
+    std::cout << "Instance, Avg Running Time (s), Number of Iterations" << std::endl; 
+
+    for (int fileIdx = 1; fileIdx < argc; fileIdx++) {
+        parser(argv[fileIdx]);
+
+        Object * temp = new Object[num_elem];
+
+        for (int i = 0; i < num_elem; i++)
+            temp[i] = objects[i];
+
+        timer.reset();        
+
+        int it = 0;
+        while (timer.getCPUTotalSecs() < 5.0)
+        {
+            inserted.clear();
+            timer.start();
+            kpfrac_linear(objects, num_elem, W); 
+            timer.stop();      
+            it++;
+            for(int j = 0; j < num_elem; j++)
+                objects[j] = temp[j];
+        }
+
+        double media = timer.getCPUTotalSecs() / it;
+
+        std::cout << argv[fileIdx] << "," << media << "," << it << std::endl; 
+
+        // Loop over the array of objects and display which were inserted and with
+        //   what frequency.
+        #ifdef DEBUG
+            int totalValue = 0;
+            double totalWeight = 0;
+
+            std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
+            for (int i = 0, len = inserted.size(); i < len; i++) {
+                Object obj = inserted[i];
+
+                std::cout << obj.elem   << " " << obj.value   << " " 
+                          << obj.weight << " " << obj.density << " "
+                          << obj.frequency << std::endl;
+
+                totalValue  += obj.frequency * obj.value;
+                totalWeight += obj.frequency * obj.weight;
+            }
+            std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
+            std::cout << "Value : " << totalValue << std::endl;
+        #endif
+
+        delete [] objects;
         inserted.clear();
-        timer.start();
-        kpfrac_linear(objects, num_elem, W); 
-        timer.stop();      
-        it++;
-        for(int j = 0; j < num_elem; j++)
-            objects[j] = temp[j];
     }
-
-    double media = timer.getCPUTotalSecs() / it;
-
-    std::cout << "Media de tempo: " << media << std::endl; 
-
-
-    // Loop over the array of objects and display which were inserted and with
-    //   what frequency.
-    int totalValue = 0;
-    double totalWeight = 0;
-
-    std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-    for (int i = 0, len = inserted.size(); i < len; i++) {
-        Object obj = inserted[i];
-
-        std::cout << obj.elem   << " " << obj.value   << " " 
-                  << obj.weight << " " << obj.density << " "
-                  << obj.frequency << std::endl;
-
-        totalValue  += obj.frequency * obj.value;
-        totalWeight += obj.frequency * obj.weight;
-    }
-    std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-    std::cout << "Value : " << totalValue << std::endl;
-
-    delete [] objects;
-    inserted.clear();
 
     return 0;
 }

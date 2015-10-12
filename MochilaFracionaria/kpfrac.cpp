@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "Object.h"
+#include "CPUTimer.h"
 
 Object * objects = NULL;
 int W;
@@ -94,39 +95,70 @@ void kpfrac(Object * obj)
     }
 }
 
-int main(int argc, char * argv[])
+/**
+ * Reads in the input file, performs the KP-frac linear time strategy on the 
+ *   input and displays the optimal solution.
+ */
+int main (int argc, char * argv[])
 {
     if (argc <= 1) {
         std::cout << "Please indicate the name of the input file." << std::endl;
         return -1;
     }
 
-    parser(argv[1]);
+    CPUTimer timer;
 
-    kpfrac(objects);
+    std::cout << "Instance, Avg Running Time (s), Number of Iterations" << std::endl; 
 
-    // Loop over the array of objects and display which were inserted and with
-    //   what frequency.
-    int totalValue = 0;
-    double totalWeight = 0;
+    for (int fileIdx = 1; fileIdx < argc; fileIdx++) {
+        parser(argv[fileIdx]);
 
-    std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-    for (int i = 0; i < num_elem; i++) {
-        std::cout << objects[i].elem   << " " << objects[i].value   << " " 
-                  << objects[i].weight << " " << objects[i].density << " "
-                  << objects[i].frequency << std::endl;
+        Object * temp = new Object[num_elem];
 
-        if (objects[i].frequency == 0) {
-            break;
+        for (int i = 0; i < num_elem; i++)
+            temp[i] = objects[i];
+
+        timer.reset();        
+
+        int it = 0;
+        while (timer.getCPUTotalSecs() < 5.0)
+        {
+            timer.start();
+            kpfrac(objects); 
+            timer.stop();      
+            it++;
+            for(int j = 0; j < num_elem; j++)
+                objects[j] = temp[j];
         }
 
-        totalValue  += objects[i].frequency * objects[i].value;
-        totalWeight += objects[i].frequency * objects[i].weight;
-    }
-    std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-    std::cout << "Value : " << totalValue << std::endl;
+        double media = timer.getCPUTotalSecs() / it;
 
-    delete [] objects;
+        std::cout << argv[fileIdx] << "," << media << "," << it << std::endl; 
+
+        // Loop over the array of objects and display which were inserted and with
+        //   what frequency.
+        #ifdef DEBUG
+            int totalValue = 0;
+            double totalWeight = 0;
+
+            std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
+            for (int i = 0; objects[i].frequency > 0; i++) {
+                Object obj = objects[i];
+
+                std::cout << obj.elem   << " " << obj.value   << " " 
+                          << obj.weight << " " << obj.density << " "
+                          << obj.frequency << std::endl;
+
+                totalValue  += obj.frequency * obj.value;
+                totalWeight += obj.frequency * obj.weight;
+            }
+            std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
+            std::cout << "Value : " << totalValue << std::endl;
+        #endif
+
+        delete [] objects;
+    }
 
     return 0;
 }
+
