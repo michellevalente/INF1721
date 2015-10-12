@@ -1,0 +1,6 @@
+Averarge time for bignum_64_02.dat: 2.35794e-05s
+Size in bits:64 amount: 50 k_used:16
+Averarge time for bignum_64_02.dat: 0.000216273s
+Size in bits:64 amount: 50 k used:8
+Averarge time for bignum_64_02.dat: 0.0258308s
+Size in bits:64 amount: 50 k used:4

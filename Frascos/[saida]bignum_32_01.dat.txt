@@ -1,0 +1,10 @@
+Averarge time for bignum_32_01.dat: 3.37556e-06s
+Size in bits:32 amount: 50 k_used:16
+Averarge time for bignum_32_01.dat: 1.04813e-05s
+Size in bits:32 amount: 50 k used:8
+Averarge time for bignum_32_01.dat: 9.80954e-05s
+Size in bits:32 amount: 50 k used:4
+Averarge time for bignum_32_01.dat: 0.0130482s
+Size in bits:32 amount: 50 k used:2
+Averarge time for bignum_32_01.dat: 454.944s
+Size in bits:32 amount: 50 k used:1

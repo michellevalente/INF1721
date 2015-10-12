@@ -214,7 +214,7 @@ double drop_all(int k){
 	for (i=0; i<num_elem; i++){
 		count = 0;
 		timer.reset();
-		while(timer.getCPUTotalSecs() < 1){
+		while(timer.getCPUTotalSecs() < 1.0){
 				timer.start();
 				//printf("aaaa k:%d\n",k);
 				drop(bittage,k,parsed_data[i]);
@@ -234,25 +234,25 @@ int main(int argc, char *argv[]){
 	if (argc == 3 && strcmp("--file",argv[1]) == 0){
 		parser_whole_file(argv[2]);
 
-		average = drop_all(16);
-		printf("Averarge time for %s: %gs\n",argv[2],average );
-		printf("Size in bits:%d amount: %d k_used:16\n",bittage,num_elem );
-
-		average = drop_all(8);
-		printf("Averarge time for %s: %gs\n",argv[2],average );
-		printf("Size in bits:%d amount: %d k used:8\n",bittage,num_elem );
-
-		average = drop_all(4);
-		printf("Averarge time for %s: %gs\n",argv[2],average );
-		printf("Size in bits:%d amount: %d k used:4\n",bittage,num_elem );
-
-		// average = drop_all(2);
+		// average = drop_all(16);
 		// printf("Averarge time for %s: %gs\n",argv[2],average );
-		// printf("Size in bits:%d amount: %d k used:2\n",bittage,num_elem );
+		// printf("Size in bits:%d amount: %d k_used:16\n",bittage,num_elem );
 
-		// average = drop_all(1);
+		// average = drop_all(8);
 		// printf("Averarge time for %s: %gs\n",argv[2],average );
 		// printf("Size in bits:%d amount: %d k used:8\n",bittage,num_elem );
+
+		// average = drop_all(4);
+		// printf("Averarge time for %s: %gs\n",argv[2],average );
+		// printf("Size in bits:%d amount: %d k used:4\n",bittage,num_elem );
+
+		average = drop_all(2);
+		printf("Averarge time for %s: %gs\n",argv[2],average );
+		printf("Size in bits:%d amount: %d k used:2\n",bittage,num_elem );
+
+		average = drop_all(1);
+		printf("Averarge time for %s: %gs\n",argv[2],average );
+		printf("Size in bits:%d amount: %d k used:1\n",bittage,num_elem );
 
 	}
 	else{
