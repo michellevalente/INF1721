@@ -109,9 +109,9 @@ void kpfrac_linear_heuristic (Object * objects, int length, int weight) {
     Object * R_1, * R_2, * R_3;
     int idx_R_1, idx_R_2, idx_R_3;
 
-    R_1 = new Object[length/2 + 1];
-    R_2 = new Object[length/2 + 1];
-    R_3 = new Object[length/2 + 1];
+    R_1 = new Object[length];
+    R_2 = new Object[length];
+    R_3 = new Object[length];
 
     idx_R_1 = idx_R_2 = idx_R_3 = 0;
 
