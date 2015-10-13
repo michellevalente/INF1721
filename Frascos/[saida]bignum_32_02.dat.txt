@@ -4,3 +4,5 @@ Averarge time for bignum_32_02.dat: 1.05209e-05s
 Size in bits:32 amount: 50 k used:8
 Averarge time for bignum_32_02.dat: 9.87987e-05s
 Size in bits:32 amount: 50 k used:4
+Averarge time for bignum_32_02.dat: 0.0122726s
+Size in bits:32 amount: 50 k used:2
