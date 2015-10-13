@@ -198,7 +198,7 @@ int main (int argc, char * argv[])
         timer.reset();        
 
         int it = 0;
-        while (timer.getCPUTotalSecs() == 0.0)
+        while (timer.getCPUTotalSecs() < 5.0)
         {
             inserted.clear();
             timer.start();
@@ -238,6 +238,7 @@ int main (int argc, char * argv[])
         std::cout << std::setprecision(15) << "," << totalValue << std::endl;
 
         delete [] objects;
+        delete [] temp;
         inserted.clear();
     }
 

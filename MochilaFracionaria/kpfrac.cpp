@@ -1,6 +1,7 @@
 #include <vector>       
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include "Object.h"
 #include "CPUTimer.h"
@@ -9,8 +10,7 @@ Object * objects = NULL;
 int W;
 int num_elem;
 
-void parser(std::string fileName)
-{
+void parser (std::string fileName) {
     int valor, weight, num;
     std::ifstream infile(fileName);
 
@@ -27,71 +27,24 @@ void parser(std::string fileName)
     infile >> W;
 }
 
-void mergeSort(Object * objects, int start, int end) {
-    int length = end - start + 1;
-    if (length <= 1) {
-        return;
-    }
-
-    int mid = (start + end + 1) / 2;
-    mergeSort(objects, start, mid - 1);
-    mergeSort(objects, mid, end);
-
-    int i, j, k;
-    for (k = start, i = start, j = mid; (k < end) && (i < j) && (k-i!=1); k++) {
-        if(k - i == 1) {
-            break;
-        }
-
-        if (objects[i] < objects[j]) {
-            std::swap(objects[i], objects[k]);
-
-            if (!(j - i == 1)) {
-                i++;
-            } else if (i - k != 1) {
-                i = k;
-            }
-        } else {
-            std::swap(objects[j], objects[k]);
-
-            if (j < end) {
-                j++;
-            }
-
-            if (i < mid) {
-                i = j - 1;
-            }
-
-            if (i == k) {
-                i++;
-            }
-        }
-    }
-}
-
 void kpfrac(Object * obj)
 {
     int i, weight = 0;
-    double frac[num_elem];
 
-    mergeSort(obj, 0, num_elem);
+    std::sort(obj, obj + num_elem);    
 
-    for(i = 0; i < num_elem; i++) {
-        frac[i] = 0;
-    }
-    
-    i = 0;
-    while (weight < W)
+    i = num_elem - 1;
+    while (i >= 0 && weight < W)
     {   
         if (weight + obj[i].weight <= W)
         {
-            objects[i].frequency = 1.0;
-            weight += objects[i].weight;
+            obj[i].frequency = 1.0;
+            weight += obj[i].weight;
         } else {
-            objects[i].frequency = (W - weight) * 1.0 / obj[i].weight;
+            obj[i].frequency = (W - weight) * 1.0 / obj[i].weight;
             weight = W;
         }
-        i++;
+        i--;
     }
 }
 
@@ -108,55 +61,63 @@ int main (int argc, char * argv[])
 
     CPUTimer timer;
 
-    std::cout << "Instance, Avg Running Time (s), Number of Iterations" << std::endl; 
+    std::cout << "Instance, Avg Running Time (s), Number of Iterations, Value" << std::endl; 
 
     for (int fileIdx = 1; fileIdx < argc; fileIdx++) {
         parser(argv[fileIdx]);
 
         Object * temp = new Object[num_elem];
 
-        for (int i = 0; i < num_elem; i++)
+        for (int i = 0; i < num_elem; i++) {
             temp[i] = objects[i];
+        }
 
         timer.reset();        
 
         int it = 0;
         while (timer.getCPUTotalSecs() < 5.0)
         {
-            timer.start();
-            kpfrac(objects); 
-            timer.stop();      
-            it++;
-            for(int j = 0; j < num_elem; j++)
+            for(int j = 0; j < num_elem; j++) {
                 objects[j] = temp[j];
+            }
+
+            timer.start();
+            kpfrac(objects);
+            timer.stop();
+
+            it++;
         }
 
         double media = timer.getCPUTotalSecs() / it;
 
-        std::cout << argv[fileIdx] << "," << media << "," << it << std::endl; 
+        std::cout << argv[fileIdx] << "," << media << "," << it; 
 
         // Loop over the array of objects and display which were inserted and with
         //   what frequency.
+        
+        double totalValue = 0.0;
+
         #ifdef DEBUG
-            int totalValue = 0;
-            double totalWeight = 0;
-
-            std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-            for (int i = 0; objects[i].frequency > 0; i++) {
-                Object obj = objects[i];
-
-                std::cout << obj.elem   << " " << obj.value   << " " 
-                          << obj.weight << " " << obj.density << " "
-                          << obj.frequency << std::endl;
-
-                totalValue  += obj.frequency * obj.value;
-                totalWeight += obj.frequency * obj.weight;
-            }
-            std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-            std::cout << "Value : " << totalValue << std::endl;
+            std::cout << std::endl << "Elem | Value | Weight | Density | Frequency" << std::endl;
         #endif
 
+        // objects should be ordered in increasing fashion, so start from last element.
+        for (int i = num_elem - 1; i >= 0 && objects[i].frequency > 0.0; i--) {
+            Object obj = objects[i];
+
+            #ifdef DEBUG
+              std::cout << obj.elem   << " " << obj.value   << " " 
+                        << obj.weight << " " << obj.density << " "
+                        << obj.frequency << std::endl;
+            #endif
+
+            totalValue += obj.frequency * obj.value;
+        }
+        
+        std::cout << std::setprecision(15) << "," << totalValue << std::endl;
+
         delete [] objects;
+        delete [] temp;
     }
 
     return 0;
