@@ -52,15 +52,16 @@ void parser (std::string fileName) {
 Object find_median (Object * v, int n) {
     Object * medians = new Object[n + 1];
  
-    // List of all tentative medians (initally the whole set).
-    for (int i = 0; i < n; i++)
-        medians[i] = objects[i];
+    // List of all tentative medians (initially the whole set).
+    for (int i = 0; i < n; i++) {
+        medians[i] = v[i];
+    }
  
     // Partition the set of objects into groups of 5, iteratively electing
     // the median of each group. This process is repeated until the median
     // of all medians, hence the median of the whole set, is found.
     int n_medians = n;
-    while (n_medians > 1) {
+    do {
         int store = 0;
 
         for (int i = 0; i < n_medians; i += 5) {
