@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <iomanip>
 
 #include "Object.h"
 #include "CPUTimer.h"
@@ -38,88 +39,49 @@ void parser (std::string fileName) {
 }
 
 /**
- * Recursively finds the `k`-th element within `v`.
- *
- * As a side effect, this algorithm will re-arrange the elements in `v`, putting
- *   the elements whose density is less than the median to the left of it and
- *   the remaining elements to the right of it.
- *
- * Extracted and modified from: https://gist.github.com/andlima/1774060
+ * Finds the median element within `v`. This is an implementation of the median
+ * of medians strategy, to find the median in O(n).
  *
  * @param v
  *      Subset of the list of Objects for the current input file.
  * @param n
  *      Number of elements inside of `v`.
- * @param k
- *      Index of the element the user wants to find.
  * @return
- *      The value of the `k`-th element of `v`.
+ *      The median element of `v`.
  */
-Object find_kth (Object * v, int n, int k) {
-    if (n == 1 && k == 0) return v[0];
+Object find_median (Object * v, int n) {
+    Object * medians = new Object[n + 1];
+ 
+    // List of all tentative medians (initally the whole set).
+    for (int i = 0; i < n; i++)
+        medians[i] = objects[i];
+ 
+    // Partition the set of objects into groups of 5, iteratively electing
+    // the median of each group. This process is repeated until the median
+    // of all medians, hence the median of the whole set, is found.
+    int n_medians = n;
+    while (n_medians > 1) {
+        int store = 0;
 
-    // Calculate the number of medians that exist in `v`.
-    int m = (n + 4)/5;
-    Object * medians = new Object[m];
+        for (int i = 0; i < n_medians; i += 5) {
+            int startIdx = i, endIdx = i + std::min(5, n_medians - i);
 
-    for (int i = 0; i < m; i++) {
-        // Assert there are 5 elements to be sorted in the `i`-th chunk.
-        // Otherwise, just get the first element of the `i`-th chunk. [good enough]
-        if (5 * i + 4 < n) {
-            Object * w = v + 5 * i;
+            // Order the group of medians. Even though we're using std::sort, this
+            // will always order sets of at most 5 elements. Hence, it executes a
+            // constant number of worst-case comparisons.
+            std::sort(medians + startIdx, medians + endIdx);
 
-            // Use a Selection Sort strategy below. As we only have 5 elements,
-            //   it runs a constant number of times: 9 iterations tops.
-            for (int j0 = 0; j0 < 3; j0++) {
-                int jmin = j0;
+            medians[store++] = medians[(startIdx + endIdx)/2]; 
+        } 
 
-                for (int j = j0 + 1; j < 5; j++) {
-                    if (w[j] < w[jmin]) {
-                    	jmin = j;
-                    }
-                }
+        n_medians = store;
+    } while(n_medians > 1);
 
-                std::swap(w[j0], w[jmin]);
-            }
+    Object median = medians[0];
 
-            medians[i] = w[2];
-        } else {
-            medians[i] = v[5 * i];
-        }
-    }
-
-    // Recursively find the median of the medians.
-    Object pivot = find_kth(medians, m, m/2);
     delete [] medians;
-
-    // Find the pivot and move it to the end of the array. [ O(n) ]
-    for (int i = 0; i<n; i++) {
-        if (v[i] == pivot) {
-            std::swap(v[i], v[n-1]);
-            break;
-        }
-    }
-
-    // Put all elements less than the pivot before it. [ O(n) ]
-    int store = 0;
-    for (int i = 0; i < n - 1; i++) {
-        if (v[i] < pivot) {
-            std::swap(v[i], v[store++]);
-        }
-    }
-    std::swap(v[store], v[n-1]);
-
-    // At this point, we have three options:
-    // -- We found the k-th element.
-    // -- The k-th element is in the first half of `v`.
-    // -- The k-th element is in the second half of `v`.
-    if (store == k) {
-        return pivot;
-    } else if (store > k) {
-        return find_kth(v, store, k);
-    } else {
-        return find_kth(v + store + 1, n - store - 1, k - store - 1);
-    }
+   
+    return median;
 }
 
 /**
@@ -160,24 +122,24 @@ void kpfrac_linear (Object * objects, int length, int weight) {
     Object * R_1, * R_2, * R_3;
     int idx_R_1, idx_R_2, idx_R_3;
 
-    R_1 = new Object[length/2 + 1];
-    R_2 = new Object[length/2 + 1];
-    R_3 = new Object[length/2 + 1];
+    R_1 = new Object[length];
+    R_2 = new Object[length];
+    R_3 = new Object[length];
 
     idx_R_1 = idx_R_2 = idx_R_3 = 0;
 
     // Step 1. Taking advantage of `find_kth` side-effects.
-    Object median = find_kth(objects, length, length/2); // O(length) 
+    Object median = find_median(objects, length); // O(length) 
 
     // Step 2
     int R_3_weight = 0;
     for (int i = 0; i < length; i++) { // O(length)
         // Step 2.1
-        if (i < length/2) {
+        if (objects[i] < median) {
             R_1[idx_R_1++] = objects[i]; 
         }
         // Step 2.2 
-        else if (median == objects[i]) {
+        else if (objects[i] == median) {
             R_2[idx_R_2++] = objects[i];
         }
         // Step 2.3
@@ -215,7 +177,7 @@ void kpfrac_linear (Object * objects, int length, int weight) {
 
         // Step 6.
         kpfrac_linear(R_1, idx_R_1, weight); // T(length/2)
-    }
+    }    
 
     delete [] R_1;
     delete [] R_2;
@@ -234,7 +196,7 @@ int main (int argc, char * argv[]) {
 
     CPUTimer timer;
 
-    std::cout << "Instance, Avg Running Time (s), Number of Iterations" << std::endl; 
+    std::cout << "Instance, Avg Running Time (s), Number of Iterations, Value" << std::endl; 
 
     for (int fileIdx = 1; fileIdx < argc; fileIdx++) {
         parser(argv[fileIdx]);
@@ -260,28 +222,31 @@ int main (int argc, char * argv[]) {
 
         double media = timer.getCPUTotalSecs() / it;
 
-        std::cout << argv[fileIdx] << "," << media << "," << it << std::endl; 
+        std::cout << argv[fileIdx] << "," << media << "," << it; 
 
         // Loop over the array of objects and display which were inserted and with
         //   what frequency.
+        
+        double totalValue = 0;
+
         #ifdef DEBUG
-            int totalValue = 0;
-            double totalWeight = 0;
-
             std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-            for (int i = 0, len = inserted.size(); i < len; i++) {
-                Object obj = inserted[i];
+        #endif
 
+        for (int i = 0, len = inserted.size(); i < len; i++) {
+            Object obj = inserted[i];
+
+            #ifdef DEBUG
+                std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
                 std::cout << obj.elem   << " " << obj.value   << " " 
                           << obj.weight << " " << obj.density << " "
                           << obj.frequency << std::endl;
+            #endif
 
-                totalValue  += obj.frequency * obj.value;
-                totalWeight += obj.frequency * obj.weight;
-            }
-            std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-            std::cout << "Value : " << totalValue << std::endl;
-        #endif
+            totalValue  += obj.frequency * obj.value;
+        }
+        
+        std::cout << std::setprecision(15) << "," << totalValue << std::endl;
 
         delete [] objects;
         inserted.clear();

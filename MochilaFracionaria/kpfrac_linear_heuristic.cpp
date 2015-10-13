@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <iomanip>
 
 #include "Object.h"
 #include "CPUTimer.h"
@@ -184,7 +185,7 @@ int main (int argc, char * argv[])
 
     CPUTimer timer;
 
-    std::cout << "Instance, Avg Running Time (s), Number of Iterations" << std::endl; 
+    std::cout << "Instance, Avg Running Time (s), Number of Iterations, Value" << std::endl; 
 
     for (int fileIdx = 1; fileIdx < argc; fileIdx++) {
         parser(argv[fileIdx]);
@@ -197,7 +198,7 @@ int main (int argc, char * argv[])
         timer.reset();        
 
         int it = 0;
-        while (timer.getCPUTotalSecs() < 5.0)
+        while (timer.getCPUTotalSecs() == 0.0)
         {
             inserted.clear();
             timer.start();
@@ -210,28 +211,31 @@ int main (int argc, char * argv[])
 
         double media = timer.getCPUTotalSecs() / it;
 
-        std::cout << argv[fileIdx] << "," << media << "," << it << std::endl; 
+        std::cout << argv[fileIdx] << "," << media << "," << it; 
 
         // Loop over the array of objects and display which were inserted and with
         //   what frequency.
+        
+        double totalValue = 0;
+
         #ifdef DEBUG
-            int totalValue = 0;
-            double totalWeight = 0;
-
             std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
-            for (int i = 0, len = inserted.size(); i < len; i++) {
-                Object obj = inserted[i];
+        #endif
 
+        for (int i = 0, len = inserted.size(); i < len; i++) {
+            Object obj = inserted[i];
+
+            #ifdef DEBUG
+                std::cout << "Elem | Value | Weight | Density | Frequency" << std::endl;
                 std::cout << obj.elem   << " " << obj.value   << " " 
                           << obj.weight << " " << obj.density << " "
                           << obj.frequency << std::endl;
+            #endif
 
-                totalValue  += obj.frequency * obj.value;
-                totalWeight += obj.frequency * obj.weight;
-            }
-            std::cout << "Weight: " << totalWeight << "/" << W << std::endl;
-            std::cout << "Value : " << totalValue << std::endl;
-        #endif
+            totalValue  += obj.frequency * obj.value;
+        }
+        
+        std::cout << std::setprecision(15) << "," << totalValue << std::endl;
 
         delete [] objects;
         inserted.clear();
