@@ -250,6 +250,7 @@ int main (int argc, char * argv[]) {
         std::cout << std::setprecision(15) << "," << totalValue << std::endl;
 
         delete [] objects;
+        delete [] temp;
         inserted.clear();
     }
 
