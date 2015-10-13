@@ -164,9 +164,9 @@ void print(int *num, int size){
 
 ret drop(int n_bits, int k, int * data ){
 
-	int step,i, answer[8], start, end, result;
+	int step,i, answer[10], start, end, result;
 
-	 for(i =0; i<8;i++)
+	 for(i =0; i<10;i++)
 	 	answer[i]=0;
 
 	 step = n_bits/k;
@@ -246,13 +246,13 @@ int main(int argc, char *argv[]){
 		// printf("Averarge time for %s: %gs\n",argv[2],average );
 		// printf("Size in bits:%d amount: %d k used:4\n",bittage,num_elem );
 
-		average = drop_all(2);
+		average = drop_all(32);
 		printf("Averarge time for %s: %gs\n",argv[2],average );
-		printf("Size in bits:%d amount: %d k used:2\n",bittage,num_elem );
+		printf("Size in bits:%d amount: %d k used:32\n",bittage,num_elem );
 
-		average = drop_all(1);
+		average = drop_all(16);
 		printf("Averarge time for %s: %gs\n",argv[2],average );
-		printf("Size in bits:%d amount: %d k used:1\n",bittage,num_elem );
+		printf("Size in bits:%d amount: %d k used:16\n",bittage,num_elem );
 
 	}
 	else{

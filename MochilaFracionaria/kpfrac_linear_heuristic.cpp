@@ -197,7 +197,7 @@ int main (int argc, char * argv[])
         timer.reset();        
 
         int it = 0;
-        while (timer.getCPUTotalSecs() < 5.0)
+        while (timer.getCPUTotalSecs() == 0.0)
         {
             inserted.clear();
             timer.start();
