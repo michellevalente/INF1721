@@ -1,0 +1,4 @@
+Averarge time for bignum_192_01.dat: 0.00710202s
+Size in bits:192 amount: 50 k_used:16
+Averarge time for bignum_192_01.dat: 14.4312s
+Size in bits:192 amount: 50 k used:8
