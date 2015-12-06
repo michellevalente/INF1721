@@ -37,12 +37,15 @@ public class Graph {
 
 	public final List<Edge> edges;
 	public final List<Vertex> vertices;
-	public final Map<Vertex, Edge> relations;
+	public final Map<Vertex, Edge> adjacencies;
+	public final Map<Integer, List<Vertex>> partitions;
 
-	public Graph(List<Vertex> vertices, List<Edge> edges, Map<Vertex, Edge> relations) {
+	public Graph(List<Vertex> vertices, List<Edge> edges, Map<Vertex, Edge> relations,
+			     Map<Integer, List<Vertex>> partitions) {
 		this.vertices = vertices;
 		this.edges = edges;
-		this.relations = relations;
+		this.adjacencies = relations;
+		this.partitions = partitions;
 	}
 
 	/**
@@ -52,21 +55,35 @@ public class Graph {
 	 * 		Original graph to be copied.
 	 */
 	public Graph(Graph source) {
-		this(source.vertices, source.edges, source.relations);
+		this(source.vertices, source.edges, source.adjacencies, source.partitions);
 	}
 
 	/**
 	 * Deep copy. Create a new version of each underlying object.
 	 */
 	public Graph deepCopy(Graph source) {
-		List<Vertex> vertices = new ArrayList<Vertex>();
-		List<Edge> edges = new ArrayList<Edge>();
-		Map<Vertex, Edge> relations = new HashMap<Vertex, Edge>();
-		Map<Integer, Vertex> indexToVertex = new HashMap<Integer, Vertex>();
+		List<Vertex> vertices = new ArrayList<>();
+		List<Edge> edges = new ArrayList<>();
+		Map<Vertex, Edge> relations = new HashMap<>();
+		Map<Integer, List<Vertex>> partitions = new HashMap<>();
+
+		Map<Integer, Vertex> indexToVertex = new HashMap<>();
 
 		for (Vertex v : source.vertices) {
 			Vertex vCopy = new Vertex(v.index, v.partition);
 			vertices.add(vCopy);
+
+			// Assume the vertex's `partition` attribute is consistent.
+			List<Vertex> partition = partitions.get(vCopy.partition);
+			if (partition != null)
+				partition.add(vCopy);
+			else {
+				partition = new ArrayList<Vertex>();
+
+				partition.add(vCopy);
+
+				partitions.put(vCopy.partition, partition);
+			}
 
 			indexToVertex.put(vCopy.index, vCopy);
 		}
@@ -82,6 +99,6 @@ public class Graph {
 			relations.put(targetVertex, eCopy);
 		}
 
-		return new Graph(vertices, edges, relations);
+		return new Graph(vertices, edges, relations, partitions);
 	}
 }
