@@ -37,10 +37,10 @@ public class Graph {
 
 	public final List<Edge> edges;
 	public final List<Vertex> vertices;
-	public final Map<Vertex, Edge> adjacencies;
+	public final Map<Vertex, List<Edge>> adjacencies;
 	public final Map<Integer, List<Vertex>> partitions;
 
-	public Graph(List<Vertex> vertices, List<Edge> edges, Map<Vertex, Edge> relations,
+	public Graph(List<Vertex> vertices, List<Edge> edges, Map<Vertex, List<Edge>> relations,
 			     Map<Integer, List<Vertex>> partitions) {
 		this.vertices = vertices;
 		this.edges = edges;
@@ -64,7 +64,7 @@ public class Graph {
 	public Graph deepCopy(Graph source) {
 		List<Vertex> vertices = new ArrayList<>();
 		List<Edge> edges = new ArrayList<>();
-		Map<Vertex, Edge> relations = new HashMap<>();
+		Map<Vertex, List<Edge>> adjacencies = new HashMap<>();
 		Map<Integer, List<Vertex>> partitions = new HashMap<>();
 
 		Map<Integer, Vertex> indexToVertex = new HashMap<>();
@@ -95,10 +95,22 @@ public class Graph {
 			Edge eCopy = new Edge(sourceVertex, targetVertex, e.capacity, e.flow);
 			edges.add(eCopy);
 
-			relations.put(sourceVertex, eCopy);
-			relations.put(targetVertex, eCopy);
+			addEdge(adjacencies, sourceVertex, eCopy);
+			addEdge(adjacencies, targetVertex, eCopy);
 		}
 
-		return new Graph(vertices, edges, relations, partitions);
+		return new Graph(vertices, edges, adjacencies, partitions);
+	}
+
+	private void addEdge(Map<Vertex, List<Edge>> adjacencies, Vertex v, Edge e) {
+		List<Edge> adjacencyList = adjacencies.get(v);
+
+		if (adjacencyList != null)
+			adjacencyList.add(e);
+		else {
+			adjacencyList = new ArrayList<Edge>();
+			adjacencyList.add(e);
+			adjacencies.put(v, adjacencyList);
+		}
 	}
 }
