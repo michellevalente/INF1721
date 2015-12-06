@@ -1,0 +1,20 @@
+INF1721 - Primeiro Trabalho
+===========================
+
+Introdução
+----------
+
+A primeira questão do trabalho está resolvida na pasta `Frascos` enquanto
+a segunda encontra-se na pasta `MochilaFracionaria`.
+
+Carlos Mattoso   [1210553]
+Gabriel Barros   [1111061]
+Michelle Valente [1312828]
+
+Resultados
+----------
+
+Dentro de cada pasta há sub-pastas contendo os resultados. Estas sub-pastas
+chamam-se `output`. Além disso, existem dois arquivos Excel, um para cada
+questão, com o nome de `Gráficos` que apresentam os dados obtidos e todos os
+gráficos gerados.
