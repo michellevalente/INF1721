@@ -14,7 +14,8 @@ public interface IMaximumFlow {
 	}
 
 	/**
-	 * Find the maximum
+	 * Find the maximum flow in g.
+	 *
 	 * @param g
 	 * 		Graph on which to find maximum flow.
 	 * @param source
