@@ -1,4 +1,7 @@
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 /**
  * Edmonds Karp max flow algorithm class.
@@ -8,7 +11,7 @@ public class EdmondsKarp implements IMaximumFlow{
 
 	private double bfs(Graph g, Graph.Vertex source, Graph.Vertex target)
 	{
-		Queue q = new LinkedList();
+		Queue<Graph.Vertex> q = new LinkedList<>();
 		Map<Graph.Vertex, Graph.Vertex>  previous = new HashMap<>();
 		Map<Graph.Vertex, Double>  currentCapacity = new HashMap<>();
 
@@ -24,14 +27,14 @@ public class EdmondsKarp implements IMaximumFlow{
 
 		while(!q.isEmpty())
 		{
-			Graph.Vertex current = (Graph.Vertex) q.remove();
+			Graph.Vertex current = q.remove();
 
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
 				Graph.Vertex next = e.target;
 
 				if(e.capacity - e.flow > 0 && previous.get(next) == null)
-				{	
+				{
 					previous.put(next, current);
 					currentCapacity.put(next, Math.min( currentCapacity.get(current),e.capacity - e.flow));
 
@@ -44,15 +47,15 @@ public class EdmondsKarp implements IMaximumFlow{
 						Graph.Vertex v = next;
 						while(previous.get(v) != v)
 						{
-							Graph.Vertex u = previous.get(v);
-							for(Graph.Edge edge : g.edges)
-							{
-								if(edge.source == u && edge.target == v )
-									edge.flow +=  currentCapacity.get(target);
+							final Graph.Vertex u = previous.get(v), prev = v;
 
-								if(edge.source == v && edge.target == u )
-									edge.flow -=  currentCapacity.get(target);
-							}
+							g.adjacencies.get(u).stream()
+								.filter(edge -> edge.target == prev)
+								.forEach(edge -> edge.flow += currentCapacity.get(target));
+
+							g.adjacencies.get(v).stream()
+								.filter(edge -> edge.target == u)
+								.forEach(edge -> edge.flow += currentCapacity.get(target));
 
 							v = u;
 						}
@@ -65,9 +68,10 @@ public class EdmondsKarp implements IMaximumFlow{
 		return 0;
 	}
 
-	public Solution solve(Graph g, Graph.Vertex source, Graph.Vertex target)
+	@Override
+    public Solution solve(Graph g, Graph.Vertex source, Graph.Vertex target)
 	{
-		double maxFlow = 0;
+		double maxFlow = 0.0;
 		while(true)
 		{
 			double flow = bfs(g, source, target);

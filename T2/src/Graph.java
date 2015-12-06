@@ -38,7 +38,7 @@ public class Graph {
 	public final List<Edge> edges;
 	public final List<Vertex> vertices;
 	public final Map<Vertex, List<Edge>> adjacencies;
-	public final Map<Integer, List<Vertex>> partitions;
+	public Map<Integer, List<Vertex>> partitions;
 
 	public Graph(List<Vertex> vertices, List<Edge> edges, Map<Vertex, List<Edge>> relations,
 			     Map<Integer, List<Vertex>> partitions) {
