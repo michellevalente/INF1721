@@ -9,16 +9,16 @@ import java.util.Queue;
  */
 public class EdmondsKarp implements IMaximumFlow{
 
-	private double bfs(Graph g, Graph.Vertex source, Graph.Vertex target)
+	private double bfs(Graph g, Integer source, Integer target)
 	{
-		Queue<Graph.Vertex> q = new LinkedList<>();
-		Map<Graph.Vertex, Graph.Vertex>  previous = new HashMap<>();
-		Map<Graph.Vertex, Double>  currentCapacity = new HashMap<>();
+		Queue<Integer> q = new LinkedList<>();
+		Map<Integer, Integer>  previous = new HashMap<>();
+		Map<Integer, Double>  currentCapacity = new HashMap<>();
 
-		for(Graph.Vertex v : g.vertices)
-		{
-			previous.put(v, null);
-			currentCapacity.put(v, Double.MAX_VALUE);
+		int n = g.adjacencies.size();
+		for (int i = 1; i <= n; i++) {
+			previous.put(i, null);
+			currentCapacity.put(i, Double.MAX_VALUE);
 		}
 
 		previous.put(source, source);
@@ -27,11 +27,11 @@ public class EdmondsKarp implements IMaximumFlow{
 
 		while(!q.isEmpty())
 		{
-			Graph.Vertex current = q.remove();
+			Integer current = q.remove();
 
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
-				Graph.Vertex next = e.target;
+				Integer next = e.target;
 
 				if(e.capacity - e.flow > 0 && previous.get(next) == null)
 				{
@@ -44,10 +44,10 @@ public class EdmondsKarp implements IMaximumFlow{
 					}
 					else
 					{
-						Graph.Vertex v = next;
+						Integer v = next;
 						while(previous.get(v) != v)
 						{
-							final Graph.Vertex u = previous.get(v), prev = v;
+							final Integer u = previous.get(v), prev = v;
 
 							g.adjacencies.get(u).stream()
 								.filter(edge -> edge.target == prev)
@@ -69,7 +69,7 @@ public class EdmondsKarp implements IMaximumFlow{
 	}
 
 	@Override
-    public Solution solve(Graph g, Graph.Vertex source, Graph.Vertex target)
+    public Solution solve(Graph g, Integer source, Integer target)
 	{
 		double maxFlow = 0.0;
 		while(true)
