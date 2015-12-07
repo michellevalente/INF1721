@@ -25,6 +25,7 @@ public class Graph {
 
 	public final Map<Integer, List<Edge>> adjacencies; // adjacency list
 	public Map<Integer, List<Integer>> partitions; // partition -> vertices
+	public Integer[] vertex_partition; // vertice -> partition
 
 	public Graph(Map<Integer, List<Edge>> relations, Map<Integer, List<Integer>> partitions) {
 		this.adjacencies = relations;
