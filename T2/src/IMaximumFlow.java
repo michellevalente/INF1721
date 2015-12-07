@@ -25,5 +25,5 @@ public interface IMaximumFlow {
 	 * @return
 	 * 		The partition due to the maximum flow on `g` from `source` to `target`.
 	 */
-	public Solution solve(Graph g, Integer source, Integer target);
+	public Solution solve(Graph g, Integer source, Integer target, Integer p);
 }
