@@ -115,7 +115,7 @@ public class EdmondsKarp implements IMaximumFlow{
     public Solution solve(Graph g, Integer source, Integer target, Integer p)
 	{
 		double maxFlow = 0.0;
-		int n = g.adjacencies.size();
+		int n = g.partitions.get(p).size();
 		double[][] f = new double[n][n];
 		final Set<Integer> partS; // all vertices reachable from S
 		final Set<Integer> partT; // all vertices reachable from T
