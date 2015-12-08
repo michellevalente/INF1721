@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -10,11 +12,11 @@ public class Clusterizer {
 	 * Stores the value of the cut separating partitions of indices `original`
 	 * and `created`. `created` is the index of the new partition producing by
 	 * splitting the vertices in `original`.
-
-	public class PartitionPair {
+     */
+	public class PartitionOrder {
 		int original, created;
 		double cutValue;
-	}*/
+	}
 
 	/**
 	 * Takes in an implementation of a maximum flow algorithm and
@@ -32,7 +34,7 @@ public class Clusterizer {
 	 * @return
 	 * 		List of partitions with the values of their cuts.
 	 */
-     public void findClusters(Graph g, int totalK, IMaximumFlow flowSolver) {
+     public List<PartitionOrder> findClusters(Graph g, int totalK, IMaximumFlow flowSolver) {
 		/*
 		- Input:  G = {V, E}, K (número de partições a serem feitas)
 		- Output: as K partições e os máximos cortes mínimos
@@ -59,7 +61,7 @@ public class Clusterizer {
 
 		Apresente o output pro poggi ficar feliz
 		*/
-
+    	List<PartitionOrder> partitioningOrders = new ArrayList<>();
 		int k = 1; // last assigned cluster index - initially all together
 
 		while (k <= totalK) {
@@ -90,12 +92,19 @@ public class Clusterizer {
 			// Select the optimal partition. Assume the flow from the first partition is the maximum.
 			Integer optimalPartitionIdx = 1;
 			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
+			PartitionOrder order = new PartitionOrder();
+
 			for (int i = 2; i <= k; i++) {
 				if (candidateSolutions[i].maximumFlow > optimalPartition.maximumFlow) {
 					optimalPartition = candidateSolutions[i];
 					optimalPartitionIdx = i;
+
+					order.original = i;
+					order.created = k+1;
+					order.cutValue = optimalPartition.maximumFlow;
 				}
 			}
+			partitioningOrders.add(order);
 
 			// Repartition the graph.
 			for (Entry<Integer, Set<Integer>> partition : optimalPartition.partition.entrySet()) {
@@ -115,5 +124,7 @@ public class Clusterizer {
 
 			k++;
 		}
+
+		return partitioningOrders;
 	}
 }
