@@ -6,6 +6,7 @@ import java.util.Set;
 
 /**
  * Given an input graph finds the K most distant clusters.
+ * @author Carlos Mattoso, Gabriel Barros, Michelle Valente
  */
 public class Clusterizer {
 	/**
