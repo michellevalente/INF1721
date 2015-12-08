@@ -1,26 +1,29 @@
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Edmonds Karp max flow algorithm class.
+ *
  * @author Carlos Mattoso, Gabriel Barros, Michelle Valente
  */
 public class EdmondsKarp implements IMaximumFlow{
 
-	private double bfs(Graph g, Integer source, Integer target, double[][] f, List<Integer> part1)
+	private double bfs(Graph g, Integer source, Integer target, double[][] f)
 	{
 		Queue<Integer> q = new LinkedList<>();
 		Map<Integer, Integer>  previous = new HashMap<>();
 		Map<Integer, Double>  currentCapacity = new HashMap<>();
 
-		int n = g.adjacencies.size();
-		for (int i = 1; i <= n; i++) {
-			previous.put(i, null);
-			currentCapacity.put(i, Double.MAX_VALUE);
+		// Initialize the state for all vertices in `source`s partition.
+		// Aqui na verdade a gente opera apenas sobre os vértices da partição em que source se encontra inicialmente.
+		for (int v : g.partitions.get(g.vertex_partition[source])) {
+			previous.put(v, null);
+			currentCapacity.put(v, Double.MAX_VALUE);
 		}
 
 		previous.put(source, source);
@@ -35,7 +38,7 @@ public class EdmondsKarp implements IMaximumFlow{
 			{
 				Integer next = e.target;
 
-				if(e.capacity - f[current][next] > 0 && previous.get(next) == null 
+				if(e.capacity - f[current][next] > 0 && previous.get(next) == null
 					&& g.vertex_partition[current] == g.vertex_partition[next])
 				{
 					previous.put(next, current);
@@ -45,30 +48,30 @@ public class EdmondsKarp implements IMaximumFlow{
 					{
 						q.add(next);
 					}
-					else
+					else // backtrack from `target` to `source`
 					{
-						Integer v = next;
-						part1.add(v);
+						Integer v = next; // v == target
 
 						while(previous.get(v) != v)
 						{
-							Integer u = previous.get(v);
-							part1.add(u);
+							Integer u = previous.get(v); // u -> v
 
 							for(Graph.Edge edge : g.adjacencies.get(u))
 							{
-								if(edge.target == v )
-									f[u][v] +=  currentCapacity.get(target);
+								if (edge.target == v)
+									f[u][v] += currentCapacity.get(target);
 							}
+
 							for(Graph.Edge edge : g.adjacencies.get(v))
 							{
-								if(edge.target == u )
-									f[v][u] +=  currentCapacity.get(target);
+								// No caso da edge reversa consideramos que o fluxo tornou-se negativo.
+								// Isso cria um grafo residual implícito.
+								if(edge.target == u)
+									f[v][u] -= currentCapacity.get(target);
 							}
 
 							v = u;
 						}
-
 
 						return currentCapacity.get(target);
 					}
@@ -78,44 +81,73 @@ public class EdmondsKarp implements IMaximumFlow{
 		return 0;
 	}
 
+	/**
+	 *  Finds the set of all vertices reachable from `source` in the final flow network.
+	 */
+	private Set<Integer> findPartition(Graph g, Integer source, double[][] f) {
+		Queue<Integer> q = new LinkedList<>();
+		Set<Integer> partS = new HashSet<>();
+
+		q.add(source);
+		partS.add(source);
+
+		while(!q.isEmpty())
+		{
+			Integer current = q.remove();
+
+			for(Graph.Edge e : g.adjacencies.get(current))
+			{
+				int next = e.target;
+
+				// Just check if we can go to the next vertex and that it's not already seen
+				if (e.capacity - f[current][next] > 0 && !partS.contains(next))
+				{
+					partS.add(next);
+					q.add(next);
+				}
+			}
+		}
+
+		return partS;
+	}
+
 	@Override
     public Solution solve(Graph g, Integer source, Integer target, Integer p)
 	{
 		double maxFlow = 0.0;
 		int n = g.adjacencies.size();
 		double[][] f = new double[n][n];
-		List<Integer> part1 = new ArrayList<Integer>();
-		List<Integer> part2 = new ArrayList<Integer>();
-		Map<Integer, List<Integer>> partition = new HashMap<>(); 
+		final Set<Integer> partS; // all vertices reachable from S
+		final Set<Integer> partT; // all vertices reachable from T
+		// Mudei pra set pq temos que adicionar quem não pertence a S a T. Set busca mais rápido que lista.
+		Map<Integer, Set<Integer>> partition = new HashMap<>();
 
-		while(true)
+		while (true)
 		{
-			double flow = bfs(g, source, target, f, part1);
+			double flow = bfs(g, source, target, f);
 
-			for(Integer v : g.adjacencies.keySet())
-			{
-				if(!part1.contains(v))
-				{
-					part2.add(v);
-					g.vertex_partition[v] = p;
-				}
-				else
-				{
-					g.vertex_partition[v] = p++;
-				}
-
-			}
-
-			if(flow == 0)
+			if (flow == 0)
 				break;
-
-			maxFlow+= flow;
+			maxFlow += flow;
 		}
 
-		partition.put(p, part1);
-		partition.put(p++, part2);
-		Solution s = new Solution();
+		// Find the vertices that are reachable from `source`
+		// Achar as partições deve ser feito após terminar o loop acima. partS tem todo mundo
+		// que dá pra alcançar de `source` e partT todo mundo alcançável de `target`. Como
+		// algumas arestas são saturadas nem todo mundo é alcançado.
+		partS = findPartition(g, source, f);
 
+		/* Add all vertices from `source`s original partition but not in `partS` to
+		 * the `target` partition i.e. `partT`.
+		 */
+		partT = g.partitions.get(g.vertex_partition[source]).stream()
+			.filter(v -> !partS.contains(v)) // v ∉ partS
+			.collect(Collectors.toSet()); // partT ∪ {v}
+
+		partition.put(p, partS);
+		partition.put(p + 1, partT);
+
+		Solution s = new Solution();
 		s.maximumFlow = maxFlow;
 		s.partition = partition;
 

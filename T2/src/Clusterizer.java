@@ -1,7 +1,7 @@
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Given an input graph finds the K most distant clusters.
@@ -33,7 +33,7 @@ public class Clusterizer {
 	 * @return
 	 * 		List of partitions with the values of their cuts.
 	 */
-	public List<PartitionPair> findClusters(Graph g, int totalK, IMaximumFlow flowSolver) {
+     public List<PartitionPair> findClusters(Graph g, int totalK, IMaximumFlow flowSolver) {
 		/*
 		- Input:  G = {V, E}, K (número de partições a serem feitas)
 		- Output: as K partições e os máximos cortes mínimos
@@ -63,41 +63,41 @@ public class Clusterizer {
 		int k = 1; // last assigned cluster index - initially all together
 
 		while (k <= totalK) {
-			List<IMaximumFlow.Solution> partitions = new ArrayList<>(k);
 			int[] clustersIds = new int[k];
-
 			for(int i = 1; i <= k; i++)
 				clustersIds[i-1] = i;
+			IMaximumFlow.Solution[] candidateSolutions = new IMaximumFlow.Solution[k+1];
 
 			// Each cluster elects its optimal partition.
 			Arrays.stream(clustersIds).parallel().forEach(clusterId -> {
-				// Execute the flow algorithm for each pair of vertices in `clusterIdx`
-				for (Integer source : g.partitions.get(clusterId)) {
+				for (int vertex : g.partitions.get(clusterId)) {
+					IMaximumFlow.Solution candidateOptimalSolution = null;
 
+					// TODO: Execute the flow algorithm for each pair of vertices in `clusterIdx`
+
+					// If the solution found now is better, replace it.
+					if (candidateOptimalSolution.maximumFlow > candidateSolutions[clusterId].maximumFlow)
+						candidateSolutions[clusterId] = candidateOptimalSolution;
 				}
 			});
 
-			// Choose the top partition out of all elected.
-			double maxFlow = 0.0;
-			int originalPartition = 1;
-			IMaximumFlow.Solution optimalPartition = null;
-			for (int i = 1; i <= k; i++) {
-				IMaximumFlow.Solution partition = partitions.get(i);
-
-				if (partition.maximumFlow > maxFlow) {
-					maxFlow = partition.maximumFlow;
-					optimalPartition = partition;
-					originalPartition = i;
+			// Select the optimal partition. Assume the flow from the first partition is the maximum.
+			Integer optimalPartitionIdx = 1;
+			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
+			for (int i = 2; i <= k; i++) {
+				if (candidateSolutions[i].maximumFlow > optimalPartition.maximumFlow) {
+					optimalPartition = candidateSolutions[i];
+					optimalPartitionIdx = i;
 				}
 			}
 
 			// Repartition the graph.
-			for (Map.Entry<Integer, List<Integer>> partition : optimalPartition.partition.entrySet()) {
+			for (Entry<Integer, Set<Integer>> partition : optimalPartition.partition.entrySet()) {
 				/* In splitting, keep a partition with the original index and the new one
 				 * with the index of `k+1`.
 				 */
 				int partitionIndex = partition.getKey();
-				if (partitionIndex != originalPartition)
+				if (partitionIndex != optimalPartitionIdx)
 					partitionIndex = k+1;
 
 				g.partitions.put(partitionIndex, partition.getValue());
@@ -107,5 +107,13 @@ public class Clusterizer {
 		}
 
 		return null;
+	}
+
+	public synchronized IMaximumFlow.Solution electOptimalPartition(
+		IMaximumFlow.Solution currentOptimalPartition,
+		IMaximumFlow.Solution candidatePartition) {
+
+
+		return currentOptimalPartition;
 	}
 }

@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Graph class.
@@ -9,7 +11,7 @@ import java.util.Map;
  */
 public class Graph {
 	/**
-	 * Stores an edge ready to be used in a residual graph.
+	 * Stores an (undirected) edge ready to be used in a residual graph.
 	 */
 	public final class Edge {
 		public int source, target;
@@ -24,12 +26,13 @@ public class Graph {
 	}
 
 	public final Map<Integer, List<Edge>> adjacencies; // adjacency list
-	public Map<Integer, List<Integer>> partitions; // partition -> vertices
-	public Integer[] vertex_partition; // vertice -> partition
+	public Map<Integer, Set<Integer>> partitions; // partition -> vertices
+	public int[] vertex_partition; // vertex -> partition
 
-	public Graph(Map<Integer, List<Edge>> relations, Map<Integer, List<Integer>> partitions) {
+	public Graph(Map<Integer, List<Edge>> relations, Map<Integer, Set<Integer>> partitions, int[] vertex_partition) {
 		this.adjacencies = relations;
 		this.partitions = partitions;
+		this.vertex_partition = vertex_partition;
 	}
 
 	/**
@@ -39,7 +42,7 @@ public class Graph {
 	 * 		Original graph to be copied.
 	 */
 	public Graph(Graph source) {
-		this(source.adjacencies, source.partitions);
+		this(source.adjacencies, source.partitions, source.vertex_partition);
 	}
 
 	/**
@@ -47,7 +50,7 @@ public class Graph {
 	 */
 	public Graph deepCopy(Graph source) {
 		Map<Integer, List<Edge>> adjacencies = new HashMap<>();
-		Map<Integer, List<Integer>> partitions = new HashMap<>();
+		Map<Integer, Set<Integer>> partitions = new HashMap<>();
 
 		source.adjacencies.entrySet().forEach(vertexEdges -> {
 			List<Edge> edgesCopy = new ArrayList<Edge>();
@@ -58,9 +61,9 @@ public class Graph {
 		});
 
 		source.partitions.forEach((partitionIdx, vertices) ->
-			partitions.put(partitionIdx, new ArrayList<Integer>(vertices))
+			partitions.put(partitionIdx, new HashSet<Integer>(vertices))
 		);
 
-		return new Graph(adjacencies, partitions);
+		return new Graph(adjacencies, partitions, source.vertex_partition.clone());
 	}
 }

@@ -1,5 +1,5 @@
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Specification for algorithm that finds the maximum flow on graph `g`.
@@ -9,7 +9,7 @@ public interface IMaximumFlow {
 	 * Contains the partition and the value of the maximum flow.
 	 */
 	public class Solution {
-		Map<Integer, List<Integer>> partition;
+		Map<Integer, Set<Integer>> partition;
 		double maximumFlow;
 	}
 
