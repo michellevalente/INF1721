@@ -1,5 +1,4 @@
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -11,11 +10,11 @@ public class Clusterizer {
 	 * Stores the value of the cut separating partitions of indices `original`
 	 * and `created`. `created` is the index of the new partition producing by
 	 * splitting the vertices in `original`.
-	 */
+
 	public class PartitionPair {
 		int original, created;
 		double cutValue;
-	}
+	}*/
 
 	/**
 	 * Takes in an implementation of a maximum flow algorithm and
@@ -33,7 +32,7 @@ public class Clusterizer {
 	 * @return
 	 * 		List of partitions with the values of their cuts.
 	 */
-     public List<PartitionPair> findClusters(Graph g, int totalK, IMaximumFlow flowSolver) {
+     public void findClusters(Graph g, int totalK, IMaximumFlow flowSolver) {
 		/*
 		- Input:  G = {V, E}, K (número de partições a serem feitas)
 		- Output: as K partições e os máximos cortes mínimos
@@ -60,6 +59,7 @@ public class Clusterizer {
 
 		Apresente o output pro poggi ficar feliz
 		*/
+
 		int k = 1; // last assigned cluster index - initially all together
 
 		while (k <= totalK) {
@@ -70,14 +70,20 @@ public class Clusterizer {
 
 			// Each cluster elects its optimal partition.
 			Arrays.stream(clustersIds).parallel().forEach(clusterId -> {
-				for (int vertex : g.partitions.get(clusterId)) {
+				for (int source : g.partitions.get(clusterId)) {
 					IMaximumFlow.Solution candidateOptimalSolution = null;
 
-					// TODO: Execute the flow algorithm for each pair of vertices in `clusterIdx`
+					// Execute the flow algorithm for each pair of vertices (s,t) for s,t in `clusterIdx`
+					for (int target : g.partitions.get(clusterId)) {
+						if (source == target)
+							continue;
 
-					// If the solution found now is better, replace it.
-					if (candidateOptimalSolution.maximumFlow > candidateSolutions[clusterId].maximumFlow)
-						candidateSolutions[clusterId] = candidateOptimalSolution;
+						candidateOptimalSolution = flowSolver.solve(g, source, target, clusterId);
+
+						// If the solution found now is better, replace it.
+						if (candidateOptimalSolution.maximumFlow > candidateSolutions[clusterId].maximumFlow)
+							candidateSolutions[clusterId] = candidateOptimalSolution;
+					}
 				}
 			});
 
@@ -93,27 +99,21 @@ public class Clusterizer {
 
 			// Repartition the graph.
 			for (Entry<Integer, Set<Integer>> partition : optimalPartition.partition.entrySet()) {
-				/* In splitting, keep a partition with the original index and the new one
-				 * with the index of `k+1`.
+				/* In splitting the vertices, keep a partition with the original index
+				 * and the new one with the index of `k+1`.
 				 */
 				int partitionIndex = partition.getKey();
 				if (partitionIndex != optimalPartitionIdx)
 					partitionIndex = k+1;
 
 				g.partitions.put(partitionIndex, partition.getValue());
+
+				// Adjust the vertex to partition mappings.
+				for (int v : partition.getValue())
+					g.vertex_partition[v] = partitionIndex;
 			};
 
 			k++;
 		}
-
-		return null;
-	}
-
-	public synchronized IMaximumFlow.Solution electOptimalPartition(
-		IMaximumFlow.Solution currentOptimalPartition,
-		IMaximumFlow.Solution candidatePartition) {
-
-
-		return currentOptimalPartition;
 	}
 }
