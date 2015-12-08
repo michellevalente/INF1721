@@ -13,15 +13,14 @@ public class Graph {
 	/**
 	 * Stores an (undirected) edge ready to be used in a residual graph.
 	 */
-	public final class Edge {
+	public final static class Edge {
 		public int source, target;
-		public double capacity, flow;
+		public int capacity;
 
-		public Edge(int source, int target, double capacity, double flow) {
+		public Edge(int source, int target, int capacity) {
 			this.source = source;
 			this.target = target;
 			this.capacity = capacity;
-			this.flow = flow;
 		}
 	}
 
