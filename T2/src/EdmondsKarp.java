@@ -37,7 +37,6 @@ public class EdmondsKarp implements IMaximumFlow{
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
 				Integer next = e.target;
-
 				if(e.capacity - f[current][next] > 0 && previous.get(next) == null
 					&& g.vertex_partition[current] == g.vertex_partition[next])
 				{
@@ -67,7 +66,7 @@ public class EdmondsKarp implements IMaximumFlow{
 								// No caso da edge reversa consideramos que o fluxo tornou-se negativo.
 								// Isso cria um grafo residual implícito.
 								if(edge.target == u)
-									f[v][u] -= currentCapacity.get(target);
+									 f[v][u] = -f[u][v];
 							}
 
 							v = u;
@@ -125,7 +124,7 @@ public class EdmondsKarp implements IMaximumFlow{
 		while (true)
 		{
 			double flow = bfs(g, source, target, f);
-
+			System.out.printf("flow: %f\n", flow);
 			if (flow == 0)
 				break;
 			maxFlow += flow;
@@ -154,4 +153,3 @@ public class EdmondsKarp implements IMaximumFlow{
 		return s;
 	}
 }
-
