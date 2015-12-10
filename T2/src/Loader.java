@@ -47,6 +47,10 @@ public class Loader {
 		    while(k<n){
 		    	reader.readLine();
 		    	k++;
+
+		    	// Set up the mappings of vertices to their list of edges
+		    	List<Graph.Edge> edges = new ArrayList<>();
+		    	adjacencies.put(k, edges);
 		    }
 		    // Read the edges and create the vertex -> list<Edge> mappings
 		    int readNum[] = new int[4];
@@ -54,35 +58,28 @@ public class Loader {
 		    	m = p.matcher(text);
 
 		    	// reads: edgeId, source vertex id, target vertex id, edge capacity
-		    	
+
 		    	for (int i = 0; i < 4; i++){
 		    		m.find();
 		    		readNum[i] = Integer.parseInt(m.group());
 		    		//m.find();
 		    	}
 		    	//System.out.println(readNum[0]+" "+readNum[1]+" "+readNum[2]+" "+readNum[3]);
-		    	Graph.Edge edge = new Graph.Edge(readNum[1], readNum[2], readNum[3]);
-
-		    	List<Graph.Edge> edges = adjacencies.get(readNum[1]);
-		    	if (edges == null) { // first edge insertion
-		    		edges = new ArrayList<Graph.Edge>();
-		    		adjacencies.put(readNum[1], edges);
-		    	}
-		    	edges.add(edge);
+		    	adjacencies.get(readNum[1]).add(new Graph.Edge(readNum[1], readNum[2], readNum[3]));
 		    }
 
 		    // Create the partition to vertex mappings.
 		    Set<Integer> vertices = new HashSet<>();
-		    for(int j=1; j<=n; j++){
+		    for(int j = 1; j <= n; j++){
 		    	vertices.add(j);
 		    }
 		    partitions.put(1, vertices);
 
 		    // Create the vertex -> partiton mappings.
-		    int[] vertex_partition = new int[n];
+		    int[] vertex_partition = new int[n+1];
 		    Arrays.fill(vertex_partition, 1);
 
-		    return new Graph(adjacencies, partitions, vertex_partition );
+		    return new Graph(adjacencies, partitions, vertex_partition);
 
 		} catch (IOException e) {
 		    e.printStackTrace();
