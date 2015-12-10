@@ -33,7 +33,6 @@ public class Clusterizer {
 					original, originalSize,
 					created, createdSize,
 					cutValue);
-
 		}
 	}
 
@@ -112,6 +111,13 @@ public class Clusterizer {
 			// Select the optimal partition. Assume the flow by partitioning cluster `1` is the minimum.
 			Integer optimalPartitionIdx = 1;
 			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
+
+			// If no partition was found for cluster 1, just keep what we've got.
+			if (candidateSolutions[1].partition == null) {
+				candidateSolutions[1].partition = g.partitions;
+				candidateSolutions[1].maximumFlow = partitioningOrders.get(k - 2).cutValue;
+			}
+
 			PartitionOrder order = new PartitionOrder(1, k+1,
 				optimalPartition.partition.get(1).size(),
 				optimalPartition.partition.get(2).size(),
