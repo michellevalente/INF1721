@@ -22,6 +22,11 @@ public class Graph {
 			this.target = target;
 			this.capacity = capacity;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("(%d, %d)[%d]", source, target, capacity);
+		}
 	}
 
 	public final Map<Integer, List<Edge>> adjacencies; // adjacency list
@@ -64,5 +69,32 @@ public class Graph {
 		);
 
 		return new Graph(adjacencies, partitions, source.vertex_partition.clone());
+	}
+
+	@Override
+	public String toString() {
+		String output = "Adjacencies [" + adjacencies.size() + "]\n";
+
+		for (Map.Entry<Integer, List<Edge>> vertexEdges : adjacencies.entrySet()) {
+			output += vertexEdges.getKey() + ": {";
+			for (int i = 0; i < vertexEdges.getValue().size(); i++) {
+				if (i > 0) output += ", ";
+				output += vertexEdges.getValue().get(i);
+			}
+			output += "}\n";
+		}
+
+		output += "\nPartitions [" + partitions.size() + "]\n";
+		for (Map.Entry<Integer, Set<Integer>> partitionVertices : partitions.entrySet()) {
+			output += partitionVertices.getKey() + ": {";
+			int i = 0;
+			for (int v : partitionVertices.getValue()) {
+				if (i++ > 0) output += ", ";
+				output += v;
+			}
+			output += "}\n";
+		}
+
+		return output;
 	}
 }
