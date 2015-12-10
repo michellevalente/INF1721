@@ -110,7 +110,7 @@ public class Clusterizer {
 			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
 			PartitionOrder order = new PartitionOrder(1, k+1, optimalPartition.maximumFlow);
 
-			for (int i = 1; i <= k; i++) {
+			for (int i = 2; i <= k; i++) {
 				if (candidateSolutions[i].maximumFlow < optimalPartition.maximumFlow) {
 					optimalPartition = candidateSolutions[i];
 					optimalPartitionIdx = i;
