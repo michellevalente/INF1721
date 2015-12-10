@@ -108,22 +108,24 @@ public class Clusterizer {
 				}
 			});
 
-			// Select the optimal partition. Assume the flow by partitioning cluster `1` is the minimum.
-			Integer optimalPartitionIdx = 1;
-			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
-
-			// If no partition was found for cluster 1, just keep what we've got.
-			if (candidateSolutions[1].partition == null) {
-				candidateSolutions[1].partition = g.partitions;
-				candidateSolutions[1].maximumFlow = partitioningOrders.get(k - 2).cutValue;
+			// Find the first cluster for which a partition was possible.
+			int init_part = 1;
+			for (int i = 1; i <= k; i++) {
+				if (candidateSolutions[i].partition != null)
+					init_part = i;
 			}
 
-			PartitionOrder order = new PartitionOrder(1, k+1,
-				optimalPartition.partition.get(1).size(),
-				optimalPartition.partition.get(2).size(),
+			// Select the optimal partition. Assume the flow by partitioning cluster `1` is the minimum.
+			Integer optimalPartitionIdx = init_part;
+			IMaximumFlow.Solution optimalPartition = candidateSolutions[init_part];
+
+			PartitionOrder order = new PartitionOrder(init_part, k+1,
+				optimalPartition.partition.get(init_part).size(),
+				optimalPartition.partition.get(init_part + 1).size(),
 				optimalPartition.maximumFlow);
 
-			for (int i = 2; i <= k; i++) {
+			// No cluster before init_part had a non-null partition.
+			for (int i = init_part + 1; i <= k; i++) {
 				if (candidateSolutions[i].maximumFlow < optimalPartition.maximumFlow) {
 					optimalPartition = candidateSolutions[i];
 					optimalPartitionIdx = i;

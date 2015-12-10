@@ -2,7 +2,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.*;
+import java.util.stream.Stream;
 
 
 public class Main {
@@ -17,6 +17,7 @@ public class Main {
 			// System.out.println(fpFileName);
 			Graph currentGraph = (new Loader(fpFileName.toString())).graphParse();
 
+			final String[] outputs = new String[3];
 			Stream.iterate(3, i -> i + 1).limit(3).parallel().forEach(k ->  {
 	  			// System.out.println(currentGraph);
 
@@ -26,7 +27,7 @@ public class Main {
 					Graph gCopy = Graph.deepCopy(currentGraph);
 
 					long startTime = System.nanoTime();
-					partitionOrders = new Clusterizer().findClusters(gCopy, 2, new EdmondsKarp());
+					partitionOrders = new Clusterizer().findClusters(gCopy, k, new EdmondsKarp());
 					long endTime = System.nanoTime();
 
 					duration += (endTime - startTime);
@@ -35,12 +36,16 @@ public class Main {
 
 				// System.out.println(currentGraph);
 
-				System.out.println(String.format("%s // avg runtime %fms [# runs: %d]",
-						fpFileName.getFileName(), (duration/1000000.0)/nRuns, (int)nRuns));
+				String output = String.format("%s // k: %d // avg runtime %fms [# runs: %d]\n",
+						fpFileName.getFileName(), k, (duration/1000000.0)/nRuns, (int)nRuns);
 				for(Clusterizer.PartitionOrder partitionOrder : partitionOrders)
-					System.out.println(partitionOrder);
-				System.out.println();
+					output += partitionOrder + "\n";
+				outputs[k - 3] = output;
 			});
+
+			// Print all the results found for each file x K combination.
+			for(String kOutput : outputs)
+				System.out.println(kOutput);
 		}
 	}
 
