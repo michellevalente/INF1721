@@ -90,9 +90,10 @@ public class Clusterizer {
 
 			// Each cluster elects its optimal partition.
 			Arrays.stream(clustersIds).parallel().forEach(clusterId -> {
+				candidateSolutions[clusterId] = new IMaximumFlow.Solution();
+
 				for (int source : g.partitions.get(clusterId)) {
-					IMaximumFlow.Solution candidateOptimalSolution = null;
-					candidateSolutions[clusterId] = new IMaximumFlow.Solution();
+					IMaximumFlow.Solution candidateOptimalSolution = null; // optimal solution for given source
 
 					// Execute the flow algorithm for each pair of vertices (s,t) for s,t in `clusterIdx`
 					for (int target : g.partitions.get(clusterId)) {
