@@ -31,8 +31,12 @@ public class PreflowPush implements IMaximumFlow {
 			{
 				int next = e.target;
 
-				// Just check if we can go to the next vertex and that it's not already seen
-				if (e.capacity - f[current][next] > 0 && !partS.contains(next))
+				/* Just check if we can go to the next vertex (i.e. there's a positive
+				 * residual capacity and its in the same partition) and that it's not
+				 * already been seen in the search.
+				 */
+				if (e.capacity - f[current][next] > 0 && !partS.contains(next)
+					&& g.vertex_partition[current] == g.vertex_partition[next])
 				{
 					partS.add(next);
 					q.add(next);
@@ -89,9 +93,11 @@ public class PreflowPush implements IMaximumFlow {
 	private void relabel(Graph g, int u, int[] h, int[][] f) {
 		int minNewHeight = Integer.MAX_VALUE;
 
+		// Check all neighbors of `u` within its partition.
 		for(Graph.Edge e : g.adjacencies.get(u)) {
 			int v = e.target;
-			if (e.capacity - f[u][v] > 0)
+			if (e.capacity - f[u][v] > 0
+				&& g.vertex_partition[u] == g.vertex_partition[v])
 				minNewHeight = Math.min(minNewHeight, h[e.target]);
 		}
 
@@ -104,12 +110,15 @@ public class PreflowPush implements IMaximumFlow {
 		while (e[u] > 0) {
 			int nNeighbors = g.adjacencies.get(u).size();
 
-			// Try to push all neighbors of `u`, until all've been seen.
+			/* Try to push all neighbors of `u` that belong to its partition,
+			 * until all've been seen.
+			 */
 			if (seen[u] < nNeighbors) {
 				Graph.Edge edge = g.adjacencies.get(u).get(seen[u]);
 				int v = edge.target;
 
-				if (edge.capacity - f[u][v] > 0 && h[u] > h[v])
+				if (edge.capacity - f[u][v] > 0 && h[u] > h[v]
+					&& g.vertex_partition[u] == g.vertex_partition[v])
 					push(g, u, v, edge.capacity, e, f);
 				else
 					seen[u]++;

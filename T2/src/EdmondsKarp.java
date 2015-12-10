@@ -83,14 +83,15 @@ public class EdmondsKarp implements IMaximumFlow{
 
 		while(!q.isEmpty())
 		{
-			int current = q.remove();
+			Integer current = q.remove();
 
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
 				int next = e.target;
 
 				// Just check if we can go to the next vertex and that it's not already seen
-				if (e.capacity - f[current][next] > 0 && !partS.contains(next))
+				if (e.capacity - f[current][next] > 0 && !partS.contains(next)
+					&& g.vertex_partition[current] == g.vertex_partition[next])
 				{
 					partS.add(next);
 					q.add(next);
@@ -121,24 +122,22 @@ public class EdmondsKarp implements IMaximumFlow{
 			maxFlow += flow;
 		}
 
+
 		// Find the vertices that are reachable from `source`
-		// Achar as partições deve ser feito após terminar o loop acima. partS tem todo mundo
-		// que dá pra alcançar de `source` e partT todo mundo alcançável de `target`. Como
-		// algumas arestas são saturadas nem todo mundo é alcançado.
 		partS = findPartition(g, source, f);
 
 		/* Add all vertices from `source`s original partition but not in `partS` to
 		 * the `target` partition i.e. `partT`.
 		 */
 		partT = g.partitions.get(g.vertex_partition[source]).stream()
-			.filter(v -> !partS.contains(v)) // v ∉ partS
-			.collect(Collectors.toSet()); // partT ∪ {v}
+					.filter(v -> !partS.contains(v)) // v ∉ partS
+					.collect(Collectors.toSet()); // partT ∪ {v}
 
 		partition.put(p, partS);
 		partition.put(p + 1, partT);
 
 		Solution s = new Solution();
-		s.maximumFlow = maxFlow;
+		s.maximumFlow = maxFlow; //Arrays.stream(flows[source]).sum();
 		s.partition = partition;
 
 		return s;
