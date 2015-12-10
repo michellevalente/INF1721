@@ -58,7 +58,7 @@ public class TesteEK {
 		IMaximumFlow flowSolver = new EdmondsKarp();
 		IMaximumFlow.Solution solution = flowSolver.solve(g,1,7,1);
 
-		System.out.printf("Max flow: %f\n", solution.maximumFlow);
+		System.out.printf("Max flow: %d\n", solution.maximumFlow);
 		System.out.printf("Partition 1:\n");
 
 		for(int v : solution.partition.get(1)) {

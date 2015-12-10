@@ -36,6 +36,7 @@ public class EdmondsKarp implements IMaximumFlow{
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
 				int next = e.target;
+
 				if(e.capacity - f[current][next] > 0 && previous[next] == null
 					&& g.vertex_partition[current] == g.vertex_partition[next])
 				{
@@ -103,7 +104,7 @@ public class EdmondsKarp implements IMaximumFlow{
 	@Override
     public Solution solve(Graph g, Integer source, Integer target, Integer p)
 	{
-		double maxFlow = 0.0;
+		int maxFlow = 0;
 		int n = g.adjacencies.size();
 		int[][] f = new int[n+1][n+1];
 		final Set<Integer> partS; // all vertices reachable from S
@@ -114,7 +115,7 @@ public class EdmondsKarp implements IMaximumFlow{
 		while (true)
 		{
 			double flow = bfs(g, source, target, f);
-			System.out.printf("flow: %f\n", flow);
+			//System.out.printf("flow: %f\n", flow);
 			if (flow == 0)
 				break;
 			maxFlow += flow;
