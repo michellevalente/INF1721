@@ -42,6 +42,7 @@ public class Loader {
 		    Matcher m = p.matcher(text);
 		    m.find();
 		    int n = Integer.parseInt(m.group());
+		    //System.out.println("n: "+n);
 		    int k = 0;
 		    while(k<n){
 		    	reader.readLine();
@@ -53,9 +54,13 @@ public class Loader {
 		    	m = p.matcher(text);
 
 		    	// reads: edgeId, source vertex id, target vertex id, edge capacity
-		    	for (int i = 0; i < 4; i++)
-		    		readNum[i++] = Integer.parseInt(m.group());
-
+		    	
+		    	for (int i = 0; i < 4; i++){
+		    		m.find();
+		    		readNum[i] = Integer.parseInt(m.group());
+		    		//m.find();
+		    	}
+		    	//System.out.println(readNum[0]+" "+readNum[1]+" "+readNum[2]+" "+readNum[3]);
 		    	Graph.Edge edge = new Graph.Edge(readNum[1], readNum[2], readNum[3]);
 
 		    	List<Graph.Edge> edges = adjacencies.get(readNum[1]);
