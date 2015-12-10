@@ -16,7 +16,21 @@ public class Clusterizer {
      */
 	public class PartitionOrder {
 		int original, created;
-		double cutValue;
+		int cutValue;
+
+		public PartitionOrder(int original, int created, int cutValue) {
+	        this.original = original;
+	        this.created = created;
+	        this.cutValue = cutValue;
+        }
+
+		@Override
+		public String toString() {
+			return String.format(
+				"Partitioned %d into {%d, %d} with cut value %d.",
+				original, original, created, cutValue);
+
+		}
 	}
 
 	/**
@@ -65,7 +79,7 @@ public class Clusterizer {
     	List<PartitionOrder> partitioningOrders = new ArrayList<>();
 		int k = 1; // last assigned cluster index - initially all together
 
-		while (k <= totalK) {
+		while (k < totalK) {
 			int[] clustersIds = new int[k];
 			for(int i = 1; i <= k; i++)
 				clustersIds[i-1] = i;
@@ -75,6 +89,7 @@ public class Clusterizer {
 			Arrays.stream(clustersIds).parallel().forEach(clusterId -> {
 				for (int source : g.partitions.get(clusterId)) {
 					IMaximumFlow.Solution candidateOptimalSolution = null;
+					candidateSolutions[clusterId] = new IMaximumFlow.Solution();
 
 					// Execute the flow algorithm for each pair of vertices (s,t) for s,t in `clusterIdx`
 					for (int target : g.partitions.get(clusterId)) {
@@ -93,9 +108,9 @@ public class Clusterizer {
 			// Select the optimal partition. Assume the flow from the first partition is the minimum.
 			Integer optimalPartitionIdx = 1;
 			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
-			PartitionOrder order = new PartitionOrder();
+			PartitionOrder order = new PartitionOrder(1, k+1, optimalPartition.maximumFlow);
 
-			for (int i = 2; i <= k; i++) {
+			for (int i = 1; i <= k; i++) {
 				if (candidateSolutions[i].maximumFlow < optimalPartition.maximumFlow) {
 					optimalPartition = candidateSolutions[i];
 					optimalPartitionIdx = i;
