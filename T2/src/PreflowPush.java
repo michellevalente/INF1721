@@ -1,51 +1,11 @@
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 /**
  * @author Carlos Mattoso, Gabriel Barros, Michelle Valente
  */
-public class PreflowPush implements IMaximumFlow {
-
-	/**
-	 *  Finds the set of all vertices reachable from `source` in the final flow network.
-	 */
-	private Set<Integer> findPartition(Graph g, Integer source, int[][] f) {
-		Queue<Integer> q = new LinkedList<>();
-		Set<Integer> partS = new HashSet<>();
-
-		q.add(source);
-		partS.add(source);
-
-		while(!q.isEmpty())
-		{
-			Integer current = q.remove();
-
-			for(Graph.Edge e : g.adjacencies.get(current))
-			{
-				int next = e.target;
-
-				/* Just check if we can go to the next vertex (i.e. there's a positive
-				 * residual capacity and its in the same partition) and that it's not
-				 * already been seen in the search.
-				 */
-				if (e.capacity - f[current][next] > 0 && !partS.contains(next)
-					&& g.vertex_partition[current] == g.vertex_partition[next])
-				{
-					partS.add(next);
-					q.add(next);
-				}
-			}
-		}
-
-		return partS;
-	}
+public class PreflowPush extends IMaximumFlow {
 
 	/**
 	 * assert e[u] > 0 and h[u] == h[v] + 1
@@ -131,19 +91,13 @@ public class PreflowPush implements IMaximumFlow {
 	}
 
 	@Override
-    public Solution solve(Graph g, Integer source, Integer target, Integer p)
+    public Solution solve(Graph g, Integer source, Integer target)
 	{
 		int n = g.adjacencies.size(); // Number of vertices in partition `p`.
 		int[] seen = new int[n+1];
 		int[][] flows = new int[n+1][n+1];
 		int[] height = new int[n+1]; // heights
 		int[] excess = new int[n+1]; // excess flows
-
-		Queue<Integer> nodeList = new ConcurrentLinkedQueue<Integer>();
-
-		final Set<Integer> partS; // all vertices reachable from S
-		final Set<Integer> partT; // all vertices reachable from T
-		Map<Integer, Set<Integer>> partition = new HashMap<>();
 
 		// Create a preflow `f` that saturates all out-edges of `source`
 		height[source] = n; // Longest path from source to sink is less than `n` long.
@@ -152,10 +106,13 @@ public class PreflowPush implements IMaximumFlow {
 			push(g, source, edge.target, edge.capacity, excess, flows);
 		}
 
-		// Insert all vertices in partition `p` into the list of nodes to be seen
-		// (except for `source` and `target`.)
+		/* Insert all vertices in partition `p` into the list of nodes to be seen
+		 * (except for `source` and `target`.)
+		 */
+		Queue<Integer> nodeList = new ConcurrentLinkedQueue<Integer>();
 		for (int i = 1; i <= n; i++) {
-			if (g.vertex_partition[i] == p && i != source && i != target)
+			if (g.vertex_partition[i] == g.vertex_partition[source]
+				&& i != source && i != target)
 				nodeList.add(i);
 		}
 
@@ -180,23 +137,6 @@ public class PreflowPush implements IMaximumFlow {
 			}
 		}
 
-		// Find the vertices that are reachable from `source`
-		partS = findPartition(g, source, flows);
-
-		/* Add all vertices from `source`s original partition but not in `partS` to
-		 * the `target` partition i.e. `partT`.
-		 */
-		partT = g.partitions.get(g.vertex_partition[source]).stream()
-					.filter(v -> !partS.contains(v)) // v ∉ partS
-					.collect(Collectors.toSet()); // partT ∪ {v}
-
-		partition.put(p, partS);
-		partition.put(p + 1, partT);
-
-		Solution s = new Solution();
-		s.maximumFlow = excess[target]; //Arrays.stream(flows[source]).sum();
-		s.partition = partition;
-
-		return s;
+		return repartition(g, source, excess[target], flows);
 	}
 }

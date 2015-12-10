@@ -96,7 +96,7 @@ public class Clusterizer {
 						if (source == target)
 							continue;
 
-						candidateOptimalSolution = flowSolver.solve(g, source, target, clusterId);
+						candidateOptimalSolution = flowSolver.solve(g, source, target);
 
 						// If the solution found now is better, replace it.
 						if (candidateOptimalSolution.maximumFlow < candidateSolutions[clusterId].maximumFlow)
