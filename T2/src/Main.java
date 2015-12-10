@@ -2,6 +2,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.*;
 
 
 public class Main {
@@ -14,31 +15,32 @@ public class Main {
 
 		for (Path fpFileName : fullPathFilesName) {
 			// System.out.println(fpFileName);
-
 			Graph currentGraph = (new Loader(fpFileName.toString())).graphParse();
 
-			// System.out.println(currentGraph);
+			Stream.iterate(3, i -> i + 1).limit(3).parallel().forEach(k ->  {
+	  			// System.out.println(currentGraph);
 
-			List<Clusterizer.PartitionOrder> partitionOrders = new ArrayList<>();
-			double duration = 0, nRuns = 0; // in ms; number of executions
-			while (duration < 5000000000.0) { // 5000ms
-				Graph gCopy = Graph.deepCopy(currentGraph);
+				List<Clusterizer.PartitionOrder> partitionOrders = new ArrayList<>();
+				double duration = 0, nRuns = 0; // in ms; number of executions
+				while (duration < 5000000000.0) { // 5000ms
+					Graph gCopy = Graph.deepCopy(currentGraph);
 
-				long startTime = System.nanoTime();
-				partitionOrders = new Clusterizer().findClusters(gCopy, 2, new EdmondsKarp());
-				long endTime = System.nanoTime();
+					long startTime = System.nanoTime();
+					partitionOrders = new Clusterizer().findClusters(gCopy, 2, new EdmondsKarp());
+					long endTime = System.nanoTime();
 
-				duration += (endTime - startTime);
-				nRuns += 1;
-			}
+					duration += (endTime - startTime);
+					nRuns += 1;
+				}
 
-			// System.out.println(currentGraph);
+				// System.out.println(currentGraph);
 
-			System.out.println(String.format("%s // avg runtime %fms [# runs: %d]",
-					fpFileName.getFileName(), (duration/1000000.0)/nRuns, (int)nRuns));
-			for(Clusterizer.PartitionOrder partitionOrder : partitionOrders)
-				System.out.println(partitionOrder);
-			System.out.println();
+				System.out.println(String.format("%s // avg runtime %fms [# runs: %d]",
+						fpFileName.getFileName(), (duration/1000000.0)/nRuns, (int)nRuns));
+				for(Clusterizer.PartitionOrder partitionOrder : partitionOrders)
+					System.out.println(partitionOrder);
+				System.out.println();
+			});
 		}
 	}
 
