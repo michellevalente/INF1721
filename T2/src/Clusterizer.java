@@ -84,19 +84,19 @@ public class Clusterizer {
 						candidateOptimalSolution = flowSolver.solve(g, source, target, clusterId);
 
 						// If the solution found now is better, replace it.
-						if (candidateOptimalSolution.maximumFlow > candidateSolutions[clusterId].maximumFlow)
+						if (candidateOptimalSolution.maximumFlow < candidateSolutions[clusterId].maximumFlow)
 							candidateSolutions[clusterId] = candidateOptimalSolution;
 					}
 				}
 			});
 
-			// Select the optimal partition. Assume the flow from the first partition is the maximum.
+			// Select the optimal partition. Assume the flow from the first partition is the minimum.
 			Integer optimalPartitionIdx = 1;
 			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
 			PartitionOrder order = new PartitionOrder();
 
 			for (int i = 2; i <= k; i++) {
-				if (candidateSolutions[i].maximumFlow > optimalPartition.maximumFlow) {
+				if (candidateSolutions[i].maximumFlow < optimalPartition.maximumFlow) {
 					optimalPartition = candidateSolutions[i];
 					optimalPartitionIdx = i;
 
