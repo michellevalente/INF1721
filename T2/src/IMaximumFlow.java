@@ -10,7 +10,7 @@ public interface IMaximumFlow {
 	 */
 	public class Solution {
 		Map<Integer, Set<Integer>> partition;
-		double maximumFlow;
+		int maximumFlow;
 	}
 
 	/**
