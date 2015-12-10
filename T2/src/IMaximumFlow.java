@@ -8,9 +8,18 @@ public interface IMaximumFlow {
 	/**
 	 * Contains the partition and the value of the maximum flow.
 	 */
-	public class Solution {
+	public static class Solution {
 		Map<Integer, Set<Integer>> partition;
 		int maximumFlow;
+
+		public Solution(int maxFlow, Map<Integer, Set<Integer>> partition) {
+			this.maximumFlow = maxFlow;
+			this.partition = partition;
+		}
+
+		public Solution() {
+			this(Integer.MAX_VALUE, null);
+		}
 	}
 
 	/**
