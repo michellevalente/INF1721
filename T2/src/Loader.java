@@ -42,7 +42,11 @@ public class Loader {
 		    Matcher m = p.matcher(text);
 		    m.find();
 		    int n = Integer.parseInt(m.group());
-
+		    int k = 0;
+		    while(k<n){
+		    	reader.readLine();
+		    	k++;
+		    }
 		    // Read the edges and create the vertex -> list<Edge> mappings
 		    int readNum[] = new int[4];
 		    while ((text = reader.readLine()) != null) {
