@@ -111,8 +111,10 @@ public class Clusterizer {
 			// Find the first cluster for which a partition was possible.
 			int init_part = 1;
 			for (int i = 1; i <= k; i++) {
-				if (candidateSolutions[i].partition != null)
+				if (candidateSolutions[i].partition != null) {
 					init_part = i;
+					break;
+				}
 			}
 
 			// Select the optimal partition. Assume the flow by partitioning cluster `1` is the minimum.
