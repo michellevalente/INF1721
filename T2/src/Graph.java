@@ -52,21 +52,21 @@ public class Graph {
 	/**
 	 * Deep copy. Create a new version of each underlying object.
 	 */
-	public Graph deepCopy(Graph source) {
+	public static Graph deepCopy(Graph source) {
 		Map<Integer, List<Edge>> adjacencies = new HashMap<>();
 		Map<Integer, Set<Integer>> partitions = new HashMap<>();
 
 		source.adjacencies.entrySet().forEach(vertexEdges -> {
 			List<Edge> edgesCopy = new ArrayList<Edge>();
 
-			vertexEdges.getValue().forEach(edge -> edgesCopy.add(edge));
+			vertexEdges.getValue().forEach(e ->
+				edgesCopy.add(new Edge(e.source, e.target, e.capacity)));
 
 			adjacencies.put(vertexEdges.getKey(), edgesCopy);
 		});
 
 		source.partitions.forEach((partitionIdx, vertices) ->
-			partitions.put(partitionIdx, new HashSet<Integer>(vertices))
-		);
+			partitions.put(partitionIdx.intValue(), new HashSet<Integer>(vertices)));
 
 		return new Graph(adjacencies, partitions, source.vertex_partition.clone());
 	}
