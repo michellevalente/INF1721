@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,35 +14,33 @@ import java.util.stream.Collectors;
  */
 public class EdmondsKarp implements IMaximumFlow{
 
-	private double bfs(Graph g, Integer source, Integer target, int[][] f)
+	private int bfs(Graph g, int source, int target, int[][] f)
 	{
 		Queue<Integer> q = new LinkedList<>();
-		Map<Integer, Integer>  previous = new HashMap<>();
-		Map<Integer, Double>  currentCapacity = new HashMap<>();
+		int n = g.adjacencies.size();
+		Integer[] previous = new Integer[n+1];
+		int[] currentCapacity = new int[n+1];
 
 		// Initialize the state for all vertices in `source`s partition.
 		// Aqui na verdade a gente opera apenas sobre os vértices da partição em que source se encontra inicialmente.
-		for (int v : g.partitions.get(g.vertex_partition[source])) {
-			previous.put(v, null);
-			currentCapacity.put(v, Double.MAX_VALUE);
-		}
+		Arrays.fill(previous, null);
+		Arrays.fill(currentCapacity, Integer.MAX_VALUE);
 
-		previous.put(source, source);
-
+		previous[source] = source;
 		q.add(source);
 
 		while(!q.isEmpty())
 		{
-			Integer current = q.remove();
+			int current = q.remove();
 
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
-				Integer next = e.target;
-				if(e.capacity - f[current][next] > 0 && previous.get(next) == null
+				int next = e.target;
+				if(e.capacity - f[current][next] > 0 && previous[next] == null
 					&& g.vertex_partition[current] == g.vertex_partition[next])
 				{
-					previous.put(next, current);
-					currentCapacity.put(next, Math.min( currentCapacity.get(current),e.capacity - f[current][next]));
+					previous[next] = current;
+					currentCapacity[next] = Math.min(currentCapacity[current], e.capacity - f[current][next]);
 
 					if(next != target)
 					{
@@ -49,34 +48,25 @@ public class EdmondsKarp implements IMaximumFlow{
 					}
 					else // backtrack from `target` to `source`
 					{
-						Integer v = next; // v == target
+						int v = next; // v == target
+						int df = currentCapacity[target];
 
-						while(previous.get(v) != v)
+						while(previous[v] != v)
 						{
-							Integer u = previous.get(v); // u -> v
+							int u = previous[v]; // u -> v
 
-							for(Graph.Edge edge : g.adjacencies.get(u))
-							{
-								if (edge.target == v)
-									f[u][v] += currentCapacity.get(target);
-							}
-
-							for(Graph.Edge edge : g.adjacencies.get(v))
-							{
-								// No caso da edge reversa consideramos que o fluxo tornou-se negativo.
-								// Isso cria um grafo residual implícito.
-								if(edge.target == u)
-									 f[v][u] = -f[u][v];
-							}
+							f[u][v] += df;
+							f[v][u] -= df;
 
 							v = u;
 						}
 
-						return currentCapacity.get(target);
+						return df;
 					}
 				}
 			}
 		}
+
 		return 0;
 	}
 
