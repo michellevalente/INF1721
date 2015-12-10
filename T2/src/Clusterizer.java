@@ -15,20 +15,24 @@ public class Clusterizer {
 	 * splitting the vertices in `original`.
      */
 	public class PartitionOrder {
-		int original, created;
-		int cutValue;
+		int original, originalSize, created, createdSize, cutValue;
 
-		public PartitionOrder(int original, int created, int cutValue) {
+		public PartitionOrder(int original, int created, int originalSize, int createdSize, int cutValue) {
 	        this.original = original;
 	        this.created = created;
+	        this.originalSize = originalSize;
+	        this.createdSize = createdSize;
 	        this.cutValue = cutValue;
         }
 
 		@Override
 		public String toString() {
 			return String.format(
-				"Partitioned %d into {%d, %d} with cut value %d.",
-				original, original, created, cutValue);
+				"Partitioned %d [%d] into {%d [%d], %d [%d]} with cut value %d.",
+					original, originalSize + createdSize,
+					original, originalSize,
+					created, createdSize,
+					cutValue);
 
 		}
 	}
@@ -105,10 +109,13 @@ public class Clusterizer {
 				}
 			});
 
-			// Select the optimal partition. Assume the flow from the first partition is the minimum.
+			// Select the optimal partition. Assume the flow by partitioning cluster `1` is the minimum.
 			Integer optimalPartitionIdx = 1;
 			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
-			PartitionOrder order = new PartitionOrder(1, k+1, optimalPartition.maximumFlow);
+			PartitionOrder order = new PartitionOrder(1, k+1,
+				optimalPartition.partition.get(1).size(),
+				optimalPartition.partition.get(2).size(),
+				optimalPartition.maximumFlow);
 
 			for (int i = 2; i <= k; i++) {
 				if (candidateSolutions[i].maximumFlow < optimalPartition.maximumFlow) {
@@ -116,7 +123,9 @@ public class Clusterizer {
 					optimalPartitionIdx = i;
 
 					order.original = i;
+					order.originalSize = optimalPartition.partition.get(i).size();
 					order.created = k+1;
+					order.createdSize = optimalPartition.partition.get(i + 1).size();
 					order.cutValue = optimalPartition.maximumFlow;
 				}
 			}
