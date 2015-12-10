@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  */
 public class EdmondsKarp implements IMaximumFlow{
 
-	private double bfs(Graph g, Integer source, Integer target, double[][] f)
+	private double bfs(Graph g, Integer source, Integer target, int[][] f)
 	{
 		Queue<Integer> q = new LinkedList<>();
 		Map<Integer, Integer>  previous = new HashMap<>();
@@ -83,7 +83,7 @@ public class EdmondsKarp implements IMaximumFlow{
 	/**
 	 *  Finds the set of all vertices reachable from `source` in the final flow network.
 	 */
-	private Set<Integer> findPartition(Graph g, Integer source, double[][] f) {
+	private Set<Integer> findPartition(Graph g, Integer source, int[][] f) {
 		Queue<Integer> q = new LinkedList<>();
 		Set<Integer> partS = new HashSet<>();
 
@@ -92,7 +92,7 @@ public class EdmondsKarp implements IMaximumFlow{
 
 		while(!q.isEmpty())
 		{
-			Integer current = q.remove();
+			int current = q.remove();
 
 			for(Graph.Edge e : g.adjacencies.get(current))
 			{
@@ -115,7 +115,7 @@ public class EdmondsKarp implements IMaximumFlow{
 	{
 		double maxFlow = 0.0;
 		int n = g.adjacencies.size();
-		double[][] f = new double[n][n];
+		int[][] f = new int[n+1][n+1];
 		final Set<Integer> partS; // all vertices reachable from S
 		final Set<Integer> partT; // all vertices reachable from T
 		// Mudei pra set pq temos que adicionar quem não pertence a S a T. Set busca mais rápido que lista.
