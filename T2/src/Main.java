@@ -27,7 +27,7 @@ public class Main {
 					Graph gCopy = Graph.deepCopy(currentGraph);
 
 					long startTime = System.nanoTime();
-					partitionOrders = new Clusterizer().findClusters(gCopy, k, new EdmondsKarp());
+					partitionOrders = new Clusterizer().findClusters(gCopy, k, new PreflowPush());
 					long endTime = System.nanoTime();
 
 					duration += (endTime - startTime);

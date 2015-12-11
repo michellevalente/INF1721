@@ -103,21 +103,6 @@ Partitioned 1 [97] into {1 [88], 3 [9]} with cut value 664.
 Partitioned 2 [8] into {2 [4], 4 [4]} with cut value 689.
 Partitioned 3 [9] into {3 [4], 5 [5]} with cut value 689.
 
-lin318-3.mfp // k: 3 // avg runtime 115672.223858ms [# runs: 1]
-Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
-Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.
-
-lin318-3.mfp // k: 4 // avg runtime 140978.913271ms [# runs: 1]
-Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
-Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.
-Partitioned 3 [123] into {3 [105], 4 [18]} with cut value 0.
-
-lin318-3.mfp // k: 5 // avg runtime 169065.159024ms [# runs: 1]
-Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
-Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.
-Partitioned 3 [123] into {3 [105], 4 [18]} with cut value 0.
-Partitioned 4 [18] into {4 [8], 5 [10]} with cut value 0.
-
 lin318-3.mfp // k: 3 // avg runtime 128248.499041ms [# runs: 1]
 Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
 Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.

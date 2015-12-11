@@ -1,6 +1,6 @@
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * @author Carlos Mattoso, Gabriel Barros, Michelle Valente
@@ -109,7 +109,7 @@ public class PreflowPush extends IMaximumFlow {
 		/* Insert all vertices in partition `p` into the list of nodes to be seen
 		 * (except for `source` and `target`.)
 		 */
-		Queue<Integer> nodeList = new ConcurrentLinkedQueue<Integer>();
+		Deque<Integer> nodeList = new ConcurrentLinkedDeque<Integer>();
 		for (int i = 1; i <= n; i++) {
 			if (g.vertex_partition[i] == g.vertex_partition[source]
 				&& i != source && i != target)
@@ -125,13 +125,8 @@ public class PreflowPush extends IMaximumFlow {
 			// A discharge only happens if `u` is still an active node.
 			discharge(g, u, height, seen, excess, flows);
 
-			/*
-			 * If the height of a vertex `u` has increased, it means the discharge operation
-			 * had to relabel `u` in order to zero its excess. So we go back to the start of
-			 * the list to potentially discharge other vertices.
-			 */
 			if (height[u] > oldHeight) {
-				nodeList.add(u);
+				nodeList.addFirst(u);
 				current.remove();
 				current = nodeList.iterator();
 			}
