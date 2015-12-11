@@ -1,0 +1,119 @@
+ulisses16.mfp // k: 3 // avg runtime 4.690939ms [# runs: 1066]
+Partitioned 1 [16] into {1 [6], 2 [10]} with cut value 0.
+Partitioned 2 [10] into {2 [1], 3 [9]} with cut value 0.
+
+ulisses16.mfp // k: 4 // avg runtime 4.903682ms [# runs: 1020]
+Partitioned 1 [16] into {1 [6], 2 [10]} with cut value 0.
+Partitioned 2 [10] into {2 [1], 3 [9]} with cut value 0.
+Partitioned 3 [9] into {3 [8], 4 [1]} with cut value 0.
+
+ulisses16.mfp // k: 5 // avg runtime 5.838709ms [# runs: 857]
+Partitioned 1 [16] into {1 [6], 2 [10]} with cut value 0.
+Partitioned 2 [10] into {2 [1], 3 [9]} with cut value 0.
+Partitioned 3 [9] into {3 [8], 4 [1]} with cut value 0.
+Partitioned 1 [6] into {1 [4], 5 [2]} with cut value 1.
+
+berlin52-3.mfp // k: 3 // avg runtime 693.447416ms [# runs: 8]
+Partitioned 1 [52] into {1 [27], 2 [25]} with cut value 0.
+Partitioned 1 [27] into {1 [1], 3 [26]} with cut value 0.
+
+berlin52-3.mfp // k: 4 // avg runtime 787.014665ms [# runs: 7]
+Partitioned 1 [52] into {1 [27], 2 [25]} with cut value 0.
+Partitioned 1 [27] into {1 [1], 3 [26]} with cut value 0.
+Partitioned 2 [25] into {2 [3], 4 [22]} with cut value 0.
+
+berlin52-3.mfp // k: 5 // avg runtime 797.150684ms [# runs: 7]
+Partitioned 1 [52] into {1 [27], 2 [25]} with cut value 0.
+Partitioned 1 [27] into {1 [1], 3 [26]} with cut value 0.
+Partitioned 2 [25] into {2 [3], 4 [22]} with cut value 0.
+Partitioned 4 [22] into {4 [1], 5 [21]} with cut value 0.
+
+berlin52-2.mfp // k: 3 // avg runtime 995.170155ms [# runs: 6]
+Partitioned 1 [52] into {1 [29], 2 [23]} with cut value 0.
+Partitioned 1 [29] into {1 [1], 3 [28]} with cut value 0.
+
+berlin52-2.mfp // k: 4 // avg runtime 1193.811031ms [# runs: 5]
+Partitioned 1 [52] into {1 [29], 2 [23]} with cut value 0.
+Partitioned 1 [29] into {1 [1], 3 [28]} with cut value 0.
+Partitioned 2 [23] into {2 [1], 4 [22]} with cut value 0.
+
+berlin52-2.mfp // k: 5 // avg runtime 1319.908670ms [# runs: 4]
+Partitioned 1 [52] into {1 [29], 2 [23]} with cut value 0.
+Partitioned 1 [29] into {1 [1], 3 [28]} with cut value 0.
+Partitioned 2 [23] into {2 [1], 4 [22]} with cut value 0.
+Partitioned 4 [22] into {4 [3], 5 [19]} with cut value 0.
+
+berlin52-1.mfp // k: 3 // avg runtime 1949.387770ms [# runs: 3]
+Partitioned 1 [52] into {1 [38], 2 [14]} with cut value 0.
+Partitioned 2 [14] into {2 [1], 3 [13]} with cut value 0.
+
+berlin52-1.mfp // k: 4 // avg runtime 2466.909340ms [# runs: 3]
+Partitioned 1 [52] into {1 [38], 2 [14]} with cut value 0.
+Partitioned 2 [14] into {2 [1], 3 [13]} with cut value 0.
+Partitioned 3 [13] into {3 [3], 4 [10]} with cut value 0.
+
+berlin52-1.mfp // k: 5 // avg runtime 3229.585697ms [# runs: 2]
+Partitioned 1 [52] into {1 [38], 2 [14]} with cut value 0.
+Partitioned 2 [14] into {2 [1], 3 [13]} with cut value 0.
+Partitioned 3 [13] into {3 [3], 4 [10]} with cut value 0.
+Partitioned 4 [10] into {4 [1], 5 [9]} with cut value 0.
+
+lin105-3.mfp // k: 3 // avg runtime 25282.236872ms [# runs: 1]
+Partitioned 1 [105] into {1 [6], 2 [99]} with cut value 0.
+Partitioned 2 [99] into {2 [1], 3 [98]} with cut value 0.
+
+lin105-3.mfp // k: 4 // avg runtime 38616.514053ms [# runs: 1]
+Partitioned 1 [105] into {1 [6], 2 [99]} with cut value 0.
+Partitioned 2 [99] into {2 [1], 3 [98]} with cut value 0.
+Partitioned 3 [98] into {3 [4], 4 [94]} with cut value 0.
+
+lin105-3.mfp // k: 5 // avg runtime 48244.775674ms [# runs: 1]
+Partitioned 1 [105] into {1 [6], 2 [99]} with cut value 0.
+Partitioned 2 [99] into {2 [1], 3 [98]} with cut value 0.
+Partitioned 3 [98] into {3 [4], 4 [94]} with cut value 0.
+Partitioned 4 [94] into {4 [2], 5 [92]} with cut value 0.
+
+lin105-2.mfp // k: 3 // avg runtime 60388.261078ms [# runs: 1]
+Partitioned 1 [105] into {1 [88], 2 [17]} with cut value 0.
+Partitioned 2 [17] into {2 [9], 3 [8]} with cut value 0.
+
+lin105-2.mfp // k: 4 // avg runtime 82482.154848ms [# runs: 1]
+Partitioned 1 [105] into {1 [88], 2 [17]} with cut value 0.
+Partitioned 2 [17] into {2 [9], 3 [8]} with cut value 0.
+Partitioned 2 [9] into {2 [4], 4 [5]} with cut value 6.
+
+lin105-2.mfp // k: 5 // avg runtime 104986.526541ms [# runs: 1]
+Partitioned 1 [105] into {1 [88], 2 [17]} with cut value 0.
+Partitioned 2 [17] into {2 [9], 3 [8]} with cut value 0.
+Partitioned 2 [9] into {2 [4], 4 [5]} with cut value 6.
+Partitioned 3 [8] into {3 [4], 5 [4]} with cut value 6.
+
+lin105-1.mfp // k: 3 // avg runtime 97740.093805ms [# runs: 1]
+Partitioned 1 [105] into {1 [1], 2 [104]} with cut value 514.
+Partitioned 2 [104] into {2 [1], 3 [103]} with cut value 401.
+
+lin105-1.mfp // k: 4 // avg runtime 142710.135654ms [# runs: 1]
+Partitioned 1 [105] into {1 [1], 2 [104]} with cut value 514.
+Partitioned 2 [104] into {2 [1], 3 [103]} with cut value 401.
+Partitioned 3 [103] into {3 [1], 4 [102]} with cut value 417.
+
+lin105-1.mfp // k: 5 // avg runtime 180184.823484ms [# runs: 1]
+Partitioned 1 [105] into {1 [1], 2 [104]} with cut value 514.
+Partitioned 2 [104] into {2 [1], 3 [103]} with cut value 401.
+Partitioned 3 [103] into {3 [1], 4 [102]} with cut value 417.
+Partitioned 4 [102] into {4 [1], 5 [101]} with cut value 328.
+
+lin318-3.mfp // k: 3 // avg runtime 9527824.209668ms [# runs: 1]
+Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
+Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.
+
+lin318-3.mfp // k: 4 // avg runtime 9822437.347690ms [# runs: 1]
+Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
+Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.
+Partitioned 3 [123] into {3 [105], 4 [18]} with cut value 0.
+
+lin318-3.mfp // k: 5 // avg runtime 9912608.598590ms [# runs: 1]
+Partitioned 1 [318] into {1 [90], 2 [228]} with cut value 0.
+Partitioned 2 [228] into {2 [105], 3 [123]} with cut value 0.
+Partitioned 3 [123] into {3 [105], 4 [18]} with cut value 0.
+Partitioned 4 [18] into {4 [8], 5 [10]} with cut value 0.
