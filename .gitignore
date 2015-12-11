@@ -13,9 +13,4 @@ kpfrac_linear.csv
 *.stackdump
 MochilaFracionaria/~$kpfrac_heuristic.xlsx
 MochilaFracionaria/kpfrac_heuristic__Tem que rodar 9846.csv
-<<<<<<< HEAD
-
 T2/~$plots.xlsx
-=======
-*.class
->>>>>>> origin/master
