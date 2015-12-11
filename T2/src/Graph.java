@@ -13,15 +13,19 @@ public class Graph {
 	/**
 	 * Stores an (undirected) edge ready to be used in a residual graph.
 	 */
-	public final class Edge {
+	public final static class Edge {
 		public int source, target;
-		public double capacity, flow;
+		public int capacity;
 
-		public Edge(int source, int target, double capacity, double flow) {
+		public Edge(int source, int target, int capacity) {
 			this.source = source;
 			this.target = target;
 			this.capacity = capacity;
-			this.flow = flow;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("(%d, %d)[%d]", source, target, capacity);
 		}
 	}
 
@@ -48,22 +52,49 @@ public class Graph {
 	/**
 	 * Deep copy. Create a new version of each underlying object.
 	 */
-	public Graph deepCopy(Graph source) {
+	public static Graph deepCopy(Graph source) {
 		Map<Integer, List<Edge>> adjacencies = new HashMap<>();
 		Map<Integer, Set<Integer>> partitions = new HashMap<>();
 
 		source.adjacencies.entrySet().forEach(vertexEdges -> {
 			List<Edge> edgesCopy = new ArrayList<Edge>();
 
-			vertexEdges.getValue().forEach(edge -> edgesCopy.add(edge));
+			vertexEdges.getValue().forEach(e ->
+				edgesCopy.add(new Edge(e.source, e.target, e.capacity)));
 
 			adjacencies.put(vertexEdges.getKey(), edgesCopy);
 		});
 
 		source.partitions.forEach((partitionIdx, vertices) ->
-			partitions.put(partitionIdx, new HashSet<Integer>(vertices))
-		);
+			partitions.put(partitionIdx.intValue(), new HashSet<Integer>(vertices)));
 
 		return new Graph(adjacencies, partitions, source.vertex_partition.clone());
+	}
+
+	@Override
+	public String toString() {
+		String output = "Adjacencies [" + adjacencies.size() + "]\n";
+
+		for (Map.Entry<Integer, List<Edge>> vertexEdges : adjacencies.entrySet()) {
+			output += vertexEdges.getKey() + ": {";
+			for (int i = 0; i < vertexEdges.getValue().size(); i++) {
+				if (i > 0) output += ", ";
+				output += vertexEdges.getValue().get(i);
+			}
+			output += "}\n";
+		}
+
+		output += "\nPartitions [" + partitions.size() + "]\n";
+		for (Map.Entry<Integer, Set<Integer>> partitionVertices : partitions.entrySet()) {
+			output += partitionVertices.getKey() + ": {";
+			int i = 0;
+			for (int v : partitionVertices.getValue()) {
+				if (i++ > 0) output += ", ";
+				output += v;
+			}
+			output += "}\n";
+		}
+
+		return output;
 	}
 }

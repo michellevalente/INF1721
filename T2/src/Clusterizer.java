@@ -15,8 +15,25 @@ public class Clusterizer {
 	 * splitting the vertices in `original`.
      */
 	public class PartitionOrder {
-		int original, created;
-		double cutValue;
+		int original, originalSize, created, createdSize, cutValue;
+
+		public PartitionOrder(int original, int created, int originalSize, int createdSize, int cutValue) {
+	        this.original = original;
+	        this.created = created;
+	        this.originalSize = originalSize;
+	        this.createdSize = createdSize;
+	        this.cutValue = cutValue;
+        }
+
+		@Override
+		public String toString() {
+			return String.format(
+				"Partitioned %d [%d] into {%d [%d], %d [%d]} with cut value %d.",
+					original, originalSize + createdSize,
+					original, originalSize,
+					created, createdSize,
+					cutValue);
+		}
 	}
 
 	/**
@@ -65,7 +82,7 @@ public class Clusterizer {
     	List<PartitionOrder> partitioningOrders = new ArrayList<>();
 		int k = 1; // last assigned cluster index - initially all together
 
-		while (k <= totalK) {
+		while (k < totalK) {
 			int[] clustersIds = new int[k];
 			for(int i = 1; i <= k; i++)
 				clustersIds[i-1] = i;
@@ -73,35 +90,53 @@ public class Clusterizer {
 
 			// Each cluster elects its optimal partition.
 			Arrays.stream(clustersIds).parallel().forEach(clusterId -> {
+				candidateSolutions[clusterId] = new IMaximumFlow.Solution();
+
 				for (int source : g.partitions.get(clusterId)) {
-					IMaximumFlow.Solution candidateOptimalSolution = null;
+					IMaximumFlow.Solution candidateOptimalSolution = null; // optimal solution for given source
 
 					// Execute the flow algorithm for each pair of vertices (s,t) for s,t in `clusterIdx`
 					for (int target : g.partitions.get(clusterId)) {
 						if (source == target)
 							continue;
 
-						candidateOptimalSolution = flowSolver.solve(g, source, target, clusterId);
+						candidateOptimalSolution = flowSolver.solve(g, source, target);
 
 						// If the solution found now is better, replace it.
-						if (candidateOptimalSolution.maximumFlow > candidateSolutions[clusterId].maximumFlow)
+						if (candidateOptimalSolution.maximumFlow < candidateSolutions[clusterId].maximumFlow)
 							candidateSolutions[clusterId] = candidateOptimalSolution;
 					}
 				}
 			});
 
-			// Select the optimal partition. Assume the flow from the first partition is the maximum.
-			Integer optimalPartitionIdx = 1;
-			IMaximumFlow.Solution optimalPartition = candidateSolutions[1];
-			PartitionOrder order = new PartitionOrder();
+			// Find the first cluster for which a partition was possible.
+			int init_part = 1;
+			for (int i = 1; i <= k; i++) {
+				if (candidateSolutions[i].partition != null) {
+					init_part = i;
+					break;
+				}
+			}
 
-			for (int i = 2; i <= k; i++) {
-				if (candidateSolutions[i].maximumFlow > optimalPartition.maximumFlow) {
+			// Select the optimal partition. Assume the flow by partitioning cluster `1` is the minimum.
+			Integer optimalPartitionIdx = init_part;
+			IMaximumFlow.Solution optimalPartition = candidateSolutions[init_part];
+
+			PartitionOrder order = new PartitionOrder(init_part, k+1,
+				optimalPartition.partition.get(init_part).size(),
+				optimalPartition.partition.get(init_part + 1).size(),
+				optimalPartition.maximumFlow);
+
+			// No cluster before init_part had a non-null partition.
+			for (int i = init_part + 1; i <= k; i++) {
+				if (candidateSolutions[i].maximumFlow < optimalPartition.maximumFlow) {
 					optimalPartition = candidateSolutions[i];
 					optimalPartitionIdx = i;
 
 					order.original = i;
+					order.originalSize = optimalPartition.partition.get(i).size();
 					order.created = k+1;
+					order.createdSize = optimalPartition.partition.get(i + 1).size();
 					order.cutValue = optimalPartition.maximumFlow;
 				}
 			}

@@ -1,46 +1,11 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * @author Carlos Mattoso, Gabriel Barros, Michelle Valente
  */
-public class PreflowPush implements IMaximumFlow {
-
-	/**
-	 *  Finds the set of all vertices reachable from `source` in the final flow network.
-	 */
-	private Set<Integer> findPartition(Graph g, Integer source, double[][] f) {
-		Queue<Integer> q = new LinkedList<>();
-		Set<Integer> partS = new HashSet<>();
-
-		q.add(source);
-		partS.add(source);
-
-		while(!q.isEmpty())
-		{
-			Integer current = q.remove();
-
-			for(Graph.Edge e : g.adjacencies.get(current))
-			{
-				int next = e.target;
-
-				// Just check if we can go to the next vertex and that it's not already seen
-				if (e.capacity - f[current][next] > 0 && !partS.contains(next))
-				{
-					partS.add(next);
-					q.add(next);
-				}
-			}
-		}
-
-		return partS;
-	}
+public class PreflowPush extends IMaximumFlow {
 
 	/**
 	 * assert e[u] > 0 and h[u] == h[v] + 1
@@ -63,7 +28,7 @@ public class PreflowPush implements IMaximumFlow {
 	 * @param f
 	 * 		Flow network.
 	 */
-	private void push(Graph g, int u, int v, double capacity, double[] e, double[][] f) {
+	private void push(Graph g, int u, int v, double capacity, int[] e, int[][] f) {
 		double delta = Math.min(e[u], capacity - f[u][v]);
 		f[u][v] += delta;
 		f[v][u] -= delta;
@@ -85,89 +50,88 @@ public class PreflowPush implements IMaximumFlow {
 	 * @param f
 	 * 		Flow network matrix.
 	 */
-	private void relabel(Graph g, int u, int[] h, double[][] f) {
+	private void relabel(Graph g, int u, int[] h, int[][] f) {
 		int minNewHeight = Integer.MAX_VALUE;
 
+		// Check all neighbors of `u` within its partition.
 		for(Graph.Edge e : g.adjacencies.get(u)) {
-			if (e.capacity - f[u][e.target] > 0)
+			int v = e.target;
+			if (e.capacity - f[u][v] > 0
+				&& g.vertex_partition[u] == g.vertex_partition[v])
 				minNewHeight = Math.min(minNewHeight, h[e.target]);
 		}
 
+		h[u] = minNewHeight;
 		if (minNewHeight != Integer.MAX_VALUE)
 			h[u] = minNewHeight + 1;
 	}
 
+	private void discharge(Graph g, int u, int[] h, int[] seen, int[] e, int[][] f) {
+		while (e[u] > 0) {
+			int nNeighbors = g.adjacencies.get(u).size();
+
+			/* Try to push all neighbors of `u` that belong to its partition,
+			 * until all've been seen.
+			 */
+			if (seen[u] < nNeighbors) {
+				Graph.Edge edge = g.adjacencies.get(u).get(seen[u]);
+				int v = edge.target;
+
+				if (edge.capacity - f[u][v] > 0 && h[u] > h[v]
+					&& g.vertex_partition[u] == g.vertex_partition[v])
+					push(g, u, v, edge.capacity, e, f);
+				else
+					seen[u]++;
+			}
+			else { // all neighbors of `u` have been checked
+				relabel(g, u, h, f);
+				seen[u] = 0; // `u` has been relabeled, so we can check its neighbors again.
+			}
+		}
+	}
+
 	@Override
-    public Solution solve(Graph g, Integer source, Integer target, Integer p)
+    public Solution solve(Graph g, Integer source, Integer target)
 	{
-		int n = g.partitions.get(p).size(); // Number of vertices in partition `p`.
-		double[][] flows = new double[n][n];
-		int[] height = new int[n]; // heights
-		double[] excess = new double[n]; // excess flows
-		Set<Integer> activeVertices = new HashSet<>(); // active vertices i.e. e(u) > 0
-
-		final Set<Integer> partS; // all vertices reachable from S
-		final Set<Integer> partT; // all vertices reachable from T
-		Map<Integer, Set<Integer>> partition = new HashMap<>();
-
-		// Preprocess
-		Arrays.fill(height, 0); // h[v] = 0 ∀v ∈ (V_p \ {s})
-		Arrays.fill(excess, 0.0); // initially no vertex has flows
+		int n = g.adjacencies.size(); // Number of vertices in partition `p`.
+		int[] seen = new int[n+1];
+		int[][] flows = new int[n+1][n+1];
+		int[] height = new int[n+1]; // heights
+		int[] excess = new int[n+1]; // excess flows
 
 		// Create a preflow `f` that saturates all out-edges of `source`
 		height[source] = n; // Longest path from source to sink is less than `n` long.
-		excess[source] = Double.MAX_VALUE; // Send as much flow as possible to neighbors of source.
+		excess[source] = Integer.MAX_VALUE; // Send as much flow as possible to neighbors of source.
 		for (Graph.Edge edge : g.adjacencies.get(source)) {
 			push(g, source, edge.target, edge.capacity, excess, flows);
-			activeVertices.add(edge.target); // initially, only the neighbors of `source`s have positive excess flows
 		}
 
-
-		while (activeVertices.size() > 0) {
-			int u = activeVertices.iterator().next();
-
-			// try to Push.
-			boolean pushed = false;
-			for(Graph.Edge edge : g.adjacencies.get(u)) {
-				int v = edge.target;
-
-				if (excess[u] > 0 && height[u] == height[v] + 1) {
-					push(g, u, v, edge.capacity, excess, flows);
-					pushed = true;
-
-					// If any flow was pushed onto `v`, then it is now active.
-					if (excess[v] > 0)
-						activeVertices.add(v);
-				}
-			}
-
-			// If couldn't push, Relabel the vertex.
-			if (!pushed && excess[u] > 0)
-				relabel(g, u, height, flows);
-
-
-			// If the vertex now has 0 excess, it's no longer active
-			if (excess[u] == 0)
-				activeVertices.remove(u);
-		}
-
-		// Find the vertices that are reachable from `source`
-		partS = findPartition(g, source, flows);
-
-		/* Add all vertices from `source`s original partition but not in `partS` to
-		 * the `target` partition i.e. `partT`.
+		/* Insert all vertices in partition `p` into the list of nodes to be seen
+		 * (except for `source` and `target`.)
 		 */
-		partT = g.partitions.get(g.vertex_partition[source]).stream()
-			.filter(v -> !partS.contains(v)) // v ∉ partS
-			.collect(Collectors.toSet()); // partT ∪ {v}
+		Deque<Integer> nodeList = new ConcurrentLinkedDeque<Integer>();
+		for (int i = 1; i <= n; i++) {
+			if (g.vertex_partition[i] == g.vertex_partition[source]
+				&& i != source && i != target)
+				nodeList.add(i);
+		}
 
-		partition.put(p, partS);
-		partition.put(p + 1, partT);
+		// Go over the list of nodes to be processed.
+		Iterator<Integer> current = nodeList.iterator();
+		while (current.hasNext()) {
+			int u = current.next();
+			int oldHeight = height[u];
 
-		Solution s = new Solution();
-		s.maximumFlow = excess[target];
-		s.partition = partition;
+			// A discharge only happens if `u` is still an active node.
+			discharge(g, u, height, seen, excess, flows);
 
-		return s;
+			if (height[u] > oldHeight) {
+				nodeList.addFirst(u);
+				current.remove();
+				current = nodeList.iterator();
+			}
+		}
+
+		return repartition(g, source, excess[target], flows);
 	}
 }
